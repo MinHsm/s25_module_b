@@ -1020,7 +1020,9 @@ class Car1 extends StatelessWidget {
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) => CarPage()));
+                                      builder: (context) => CarPage(
+                                            car: car,
+                                          )));
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.blue,

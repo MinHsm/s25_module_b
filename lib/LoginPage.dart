@@ -63,60 +63,58 @@ class _LoginPageState extends State<LoginPage> {
                         children: [
                           Expanded(
                             flex: 1,
-                            child: SizedBox(
-                              height: 55,
-                              child: OutlinedButton(
-                                onPressed: () {
-                                  setState(() {
-                                    _isClick = true;
-                                  });
-                                },
-                                style: ButtonStyle(
-                                    backgroundColor: MaterialStateProperty.all(
-                                        _isClick ? Colors.blue : Colors.white),
-                                    shape: WidgetStateProperty.all(
-                                        RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(2))),
-                                    side: MaterialStateProperty.all(BorderSide(
-                                        width: 1, color: Colors.blue))),
+                            child: GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _isClick = !_isClick; // 切换状态
+                                });
+                              },
+                              child: Container(
+                                height: 55,
+                                decoration: BoxDecoration(
+                                  color: _isClick ? Colors.blue : Colors.white,
+                                  borderRadius: BorderRadius.circular(5),
+                                  border:
+                                      Border.all(color: Colors.blue, width: 2),
+                                ),
+                                alignment: Alignment.center,
                                 child: Text(
-                                  'Sign In',
+                                  'Sign In', // 动态文本
                                   style: TextStyle(
-                                      color: _isClick
-                                          ? Colors.white
-                                          : Colors.blue),
+                                    color:
+                                        _isClick ? Colors.white : Colors.blue,
+                                    fontSize: 16,
+                                  ),
                                 ),
                               ),
                             ),
                           ),
                           Expanded(
                             flex: 1,
-                            child: SizedBox(
-                              height: 55,
-                              child: OutlinedButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      _isClick = false;
-                                    });
-                                  },
-                                  style: ButtonStyle(
-                                      backgroundColor: WidgetStateProperty.all(
-                                        _isClick ? Colors.white : Colors.blue,
-                                      ),
-                                      shape: WidgetStateProperty.all(
-                                          RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(2))),
-                                      side: WidgetStateProperty.all(BorderSide(
-                                          color: Colors.blue, width: 1))),
-                                  child: Text(
-                                    'Sign Up',
-                                    style: TextStyle(
-                                        color: _isClick
-                                            ? Colors.blue
-                                            : Colors.white),
-                                  )),
+                            child: GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _isClick = !_isClick; // 切换状态
+                                });
+                              },
+                              child: Container(
+                                height: 55,
+                                decoration: BoxDecoration(
+                                  color: _isClick ? Colors.white : Colors.blue,
+                                  borderRadius: BorderRadius.circular(5),
+                                  border:
+                                      Border.all(color: Colors.blue, width: 2),
+                                ),
+                                alignment: Alignment.center,
+                                child: Text(
+                                  'Sign Up', // 动态文本
+                                  style: TextStyle(
+                                    color:
+                                        _isClick ? Colors.blue : Colors.white,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
                             ),
                           )
                         ],
@@ -174,29 +172,27 @@ class _LoginPageState extends State<LoginPage> {
                       SizedBox(
                         height: 20,
                       ),
-                      Align(
-                        child: SizedBox(
-                          height: 55,
-                          width: 230,
-                          child: ElevatedButton(
-                            style: ButtonStyle(
-                                backgroundColor:
-                                    WidgetStateProperty.all(Colors.blue),
-                                shape: WidgetStateProperty.all(
-                                    RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(10)))),
-                            onPressed: () {
-                              setState(() {
-                                Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => HomeTab()));
-                              });
-                            },
+                      Center(
+                        child: GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => HomeTab()));
+                            });
+                          },
+                          child: Container(
+                            width: 230,
+                            height: 55,
+                            decoration: BoxDecoration(
+                                color: Colors.blue,
+                                borderRadius: BorderRadius.circular(15)),
                             child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
                               children: [
+                                SizedBox(
+                                  width: 30,
+                                ),
                                 Icon(
                                   Icons.ads_click,
                                   color: Colors.white,

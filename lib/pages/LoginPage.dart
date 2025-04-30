@@ -3,7 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'HomeTab.dart';
+import '../HomeTab.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});

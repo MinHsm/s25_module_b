@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'HomePage.dart';
+import 'pages/HomePage.dart';
 
 class HomeTab extends StatefulWidget {
   const HomeTab({super.key});

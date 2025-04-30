@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:s25_module_b/CarPage.dart';
+import 'package:s25_module_b/pages/CarPage.dart';
 
-import 'module/data.dart';
+import '../module/data.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -68,13 +68,15 @@ class _HomePageState extends State<HomePage> {
                                 fontWeight: FontWeight.bold),
                           ),
                           Container(
-                              width: 45,
-                              height: 45,
-                              decoration: BoxDecoration(shape: BoxShape.circle),
-                              child: CircleAvatar(
-                                backgroundImage: AssetImage(
-                                    'assets/user_avatar/user_img.png'),
-                              )),
+                            width: 45,
+                            height: 45,
+                            decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                image: DecorationImage(
+                                    image: AssetImage(
+                                        'assets/user_avatar/user_img.jpg'),
+                                    fit: BoxFit.cover)),
+                          ),
                         ],
                       ),
                     ),

@@ -45,7 +45,7 @@ class _CarPageState extends State<CarPage> {
                         borderRadius: BorderRadius.circular(50),
                         image: DecorationImage(
                             image:
-                                AssetImage('assets/user_avatar/user_img.png'))),
+                                AssetImage('assets/user_avatar/user_img.jpg'))),
                   )
                 ],
               ),

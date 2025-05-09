@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:s25_module_b/pages/OnboardingPage.dart';
 
 import 'pages/LoginPage.dart';
 
@@ -28,6 +29,6 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
-    return LoginPage();
+    return OnboardingPage();
   }
 }

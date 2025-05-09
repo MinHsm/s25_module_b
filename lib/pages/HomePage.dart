@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:s25_module_b/component/SearchModal.dart';
 import 'package:s25_module_b/pages/CarPage.dart';
 
 import '../module/data.dart';
@@ -40,7 +41,7 @@ class _HomePageState extends State<HomePage> {
         rating: 4.8)
   ];
 
-  List listTitle = ["EXPLORE", "CARS", "TRUCKS", "SCOOTERS", "HELICOPTERS"];
+  List listTitle = ["探索", "汽车", "卡车", "越野车", "肌肉跑车"];
   int titleIndex = 0;
 
   @override
@@ -84,30 +85,43 @@ class _HomePageState extends State<HomePage> {
                       padding: EdgeInsets.all(10),
                       child: Row(
                         children: [
-                          Container(
-                            height: 55,
-                            width: MediaQuery.of(context).size.width - 80,
-                            decoration: BoxDecoration(
-                                color: Colors.grey[200],
-                                borderRadius: BorderRadius.circular(15)),
-                            child: Align(
-                              alignment: Alignment.center,
-                              child: TextField(
-                                textAlignVertical: TextAlignVertical.center,
-                                controller: _controller,
-                                decoration: InputDecoration(
-                                    border: InputBorder.none,
-                                    hintText: 'What transport do you want?',
-                                    prefixIcon: Icon(Icons.search),
-                                    suffixIcon: IconButton(
-                                        onPressed: () {
-                                          setState(() {
-                                            _controller.clear();
-                                          });
-                                        },
-                                        icon: Icon(Icons.clear)),
-                                    contentPadding: EdgeInsets.symmetric(
-                                        vertical: 0, horizontal: 10)),
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () => SearchModal.show(
+                                context: context,
+                                hintText: 'Search transports...',
+                                onSearch: (query) {
+                                  print('搜索内容: $query');
+                                  // 这里可以添加实际搜索逻辑
+                                },
+                                suggestions: [
+                                  '公交车',
+                                  '火车',
+                                  '飞机',
+                                  '自行车',
+                                  '出租车',
+                                ],
+                              ),
+                              child: Container(
+                                height: 55,
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[200],
+                                  borderRadius: BorderRadius.circular(15),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Padding(
+                                      padding:
+                                          EdgeInsets.only(left: 15, right: 10),
+                                      child: Icon(Icons.search,
+                                          color: Colors.grey),
+                                    ),
+                                    Text(
+                                      '你想要什么样的交通工具？',
+                                      style: TextStyle(color: Colors.grey),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
@@ -183,7 +197,7 @@ class _HomePageState extends State<HomePage> {
                   Padding(
                     padding: EdgeInsets.only(left: 10),
                     child: Text(
-                      'Trending Categories',
+                      '热门类别',
                       style:
                           TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                       textAlign: TextAlign.start,
@@ -287,14 +301,14 @@ class _HomePageState extends State<HomePage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Recently viewed',
+                          '最近浏览',
                           style: TextStyle(
                               fontSize: 18,
                               color: Colors.black,
                               fontWeight: FontWeight.bold),
                         ),
                         Text(
-                          'See All',
+                          '查看',
                           style: TextStyle(fontSize: 16, color: Colors.blue),
                         )
                       ],
@@ -303,7 +317,7 @@ class _HomePageState extends State<HomePage> {
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 10),
                     child: Text(
-                      'We show you latest search results',
+                      '我们向您展示最新的搜索结果',
                       style: TextStyle(fontSize: 14, color: Colors.grey[400]),
                     ),
                   ),
@@ -1034,7 +1048,7 @@ class Car1 extends StatelessWidget {
                               padding: EdgeInsets.zero, // 移除默认内边距
                             ),
                             child: const Text(
-                              'Book Now',
+                              '立即预定',
                               style: TextStyle(color: Colors.white),
                             ),
                           ),

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -16,6 +17,15 @@ class _LoginPageState extends State<LoginPage> {
   String _email = '', _pwd = '';
   bool _isClick = true;
   bool _isObscure = true;
+  int _countdown = 0;
+
+  void _getVerificationCode() {
+    setState(() => _countdown = 60);
+    Timer.periodic(Duration(seconds: 1), (timer) {
+      setState(() => _countdown--);
+      if (_countdown <= 0) timer.cancel();
+    });
+  }
 
   @override
   void initState() {
@@ -28,6 +38,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Form(
           child: Stack(
         children: [
@@ -49,7 +60,7 @@ class _LoginPageState extends State<LoginPage> {
           Center(
             child: Container(
               width: 350,
-              height: 450,
+              height: _isClick ? 450 : 500,
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
                   color: Colors.white,
@@ -64,11 +75,7 @@ class _LoginPageState extends State<LoginPage> {
                           Expanded(
                             flex: 1,
                             child: GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  _isClick = !_isClick; // 切换状态
-                                });
-                              },
+                              onTap: () => setState(() => _isClick = true),
                               child: Container(
                                 height: 55,
                                 decoration: BoxDecoration(
@@ -79,7 +86,7 @@ class _LoginPageState extends State<LoginPage> {
                                 ),
                                 alignment: Alignment.center,
                                 child: Text(
-                                  'Sign In', // 动态文本
+                                  '登录', // 动态文本
                                   style: TextStyle(
                                     color:
                                         _isClick ? Colors.white : Colors.blue,
@@ -92,11 +99,7 @@ class _LoginPageState extends State<LoginPage> {
                           Expanded(
                             flex: 1,
                             child: GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  _isClick = !_isClick; // 切换状态
-                                });
-                              },
+                              onTap: () => setState(() => _isClick = false),
                               child: Container(
                                 height: 55,
                                 decoration: BoxDecoration(
@@ -107,7 +110,7 @@ class _LoginPageState extends State<LoginPage> {
                                 ),
                                 alignment: Alignment.center,
                                 child: Text(
-                                  'Sign Up', // 动态文本
+                                  '注册', // 动态文本
                                   style: TextStyle(
                                     color:
                                         _isClick ? Colors.blue : Colors.white,
@@ -120,40 +123,26 @@ class _LoginPageState extends State<LoginPage> {
                         ],
                       ),
                       SizedBox(
-                        height: 20,
-                      ),
-                      Center(
-                        child: Text(
-                          _isClick ? 'Sign In' : 'Sign Up',
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 10,
+                        height: 50,
                       ),
                       Padding(
                         padding: EdgeInsets.all(10),
                         child: TextFormField(
                           decoration: InputDecoration(
-                              labelText: 'Email',
+                              labelText: '邮箱',
                               prefixIcon: Icon(
                                 Icons.email,
                                 color: Colors.grey[600],
                               )),
                         ),
                       ),
-                      SizedBox(
-                        height: 10,
-                      ),
                       Padding(
-                        padding: EdgeInsets.all(10),
+                        padding: EdgeInsets.only(
+                            top: 25, left: 10, right: 10, bottom: 20),
                         child: TextFormField(
                           obscureText: _isObscure,
                           decoration: InputDecoration(
-                              labelText: 'Password',
+                              labelText: '密码',
                               prefixIcon: Icon(
                                 Icons.lock_rounded,
                                 color: Colors.grey[600],
@@ -169,9 +158,31 @@ class _LoginPageState extends State<LoginPage> {
                                       : Icons.visibility))),
                         ),
                       ),
-                      SizedBox(
-                        height: 20,
-                      ),
+                      if (!_isClick) ...[
+                        Padding(
+                          padding: EdgeInsets.only(
+                              top: 15, left: 10, right: 10, bottom: 20),
+                          child: TextFormField(
+                            decoration: InputDecoration(
+                                labelText: '验证码',
+                                prefixIcon: Icon(Icons.verified_user,
+                                    color: Colors.grey[600]),
+                                suffixIcon: Container(
+                                  width: 100,
+                                  child: TextButton(
+                                      onPressed: _countdown > 0
+                                          ? null
+                                          : _getVerificationCode,
+                                      child: Text(
+                                        _countdown > 0
+                                            ? '${_countdown}s'
+                                            : '获取验证码',
+                                        style: TextStyle(color: Colors.blue),
+                                      )),
+                                )),
+                          ),
+                        )
+                      ],
                       Center(
                         child: GestureDetector(
                           onTap: () {
@@ -185,10 +196,12 @@ class _LoginPageState extends State<LoginPage> {
                           child: Container(
                             width: 230,
                             height: 55,
+                            margin: EdgeInsets.only(top: 20),
                             decoration: BoxDecoration(
                                 color: Colors.blue,
                                 borderRadius: BorderRadius.circular(15)),
                             child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 SizedBox(
                                   width: 30,
@@ -199,10 +212,10 @@ class _LoginPageState extends State<LoginPage> {
                                   size: 24,
                                 ),
                                 SizedBox(
-                                  width: 40,
+                                  width: 45,
                                 ),
                                 Text(
-                                  _isClick ? 'Sign In' : 'Sign Up',
+                                  _isClick ? '登录' : '注册',
                                   style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 24,
@@ -214,12 +227,12 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                       SizedBox(
-                        height: 10,
+                        height: 20,
                       ),
                       Center(
                         child: Text(
-                          _isClick ? 'Forgot your password?' : '',
-                          style: TextStyle(color: Colors.black, fontSize: 16),
+                          _isClick ? '忘记密码 ?' : '',
+                          style: TextStyle(color: Colors.blue, fontSize: 16),
                         ),
                       )
                     ],

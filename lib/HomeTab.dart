@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:s25_module_b/pages/CommunityPage.dart';
+import 'package:s25_module_b/pages/MyPage.dart';
 
 import 'pages/HomePage.dart';
 
@@ -11,7 +13,7 @@ class HomeTab extends StatefulWidget {
 }
 
 class _HomeTabState extends State<HomeTab> {
-  final List<Widget> pages = [HomePage(), Tab2(), Tab3(), Tab4()];
+  final List<Widget> pages = [HomePage(), CommunityPage(), Tab3(), MyPage()];
 
   int tabIndex = 0;
 
@@ -44,7 +46,7 @@ class _HomeTabState extends State<HomeTab> {
           selectedItemColor: Colors.blue,
           unselectedItemColor: Colors.black,
           showUnselectedLabels: false,
-          showSelectedLabels: false,
+          showSelectedLabels: true,
           onTap: _clickTab,
           items: [
             BottomNavigationBarItem(
@@ -52,29 +54,18 @@ class _HomeTabState extends State<HomeTab> {
               label: '发现',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.person_add),
-              label: '联系人',
+              icon: Icon(Icons.map),
+              label: '社区',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.add_circle_outline),
-              label: '添加',
+              icon: Icon(Icons.shopping_bag_outlined),
+              label: '订购',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.margin),
+              icon: Icon(Icons.people),
               label: '我的',
             )
           ]),
-    );
-  }
-}
-
-class Tab2 extends StatelessWidget {
-  const Tab2({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text('tab2'),
     );
   }
 }
@@ -86,17 +77,6 @@ class Tab3 extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Text('tab3'),
-    );
-  }
-}
-
-class Tab4 extends StatelessWidget {
-  const Tab4({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text('tab4'),
     );
   }
 }

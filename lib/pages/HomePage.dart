@@ -41,7 +41,6 @@ class _HomePageState extends State<HomePage> {
         rating: 4.8)
   ];
 
-  List listTitle = ["探索", "汽车", "卡车", "越野车", "肌肉跑车"];
   int titleIndex = 0;
 
   @override
@@ -62,21 +61,11 @@ class _HomePageState extends State<HomePage> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Explore',
+                            '欢迎',
                             style: TextStyle(
                                 color: Colors.black,
                                 fontSize: 32,
                                 fontWeight: FontWeight.bold),
-                          ),
-                          Container(
-                            width: 45,
-                            height: 45,
-                            decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                image: DecorationImage(
-                                    image: AssetImage(
-                                        'assets/user_avatar/user_img.jpg'),
-                                    fit: BoxFit.cover)),
                           ),
                         ],
                       ),
@@ -89,7 +78,7 @@ class _HomePageState extends State<HomePage> {
                             child: GestureDetector(
                               onTap: () => SearchModal.show(
                                 context: context,
-                                hintText: 'Search transports...',
+                                hintText: '搜索...',
                                 onSearch: (query) {
                                   print('搜索内容: $query');
                                   // 这里可以添加实际搜索逻辑
@@ -129,45 +118,6 @@ class _HomePageState extends State<HomePage> {
                             margin: EdgeInsets.only(left: 15),
                             child: Image.asset('assets/icon/filter_icon.png'),
                           )
-                        ],
-                      ),
-                    ),
-                    Container(
-                      height: 40,
-                      width: MediaQuery.of(context).size.width,
-                      child: Row(
-                        children: [
-                          for (var i = 0; i < listTitle.length; i++)
-                            Expanded(
-                              flex: 1,
-                              child: GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    titleIndex = i;
-                                  });
-                                },
-                                child: Container(
-                                  height: 40,
-                                  margin:
-                                      EdgeInsets.only(left: i == 0 ? 0 : 15),
-                                  alignment: Alignment.center,
-                                  decoration: BoxDecoration(
-                                      border: Border(
-                                          bottom: BorderSide(
-                                              color: titleIndex == i
-                                                  ? Colors.blue
-                                                  : Colors.white,
-                                              width: 2))),
-                                  child: Text(
-                                    listTitle[i],
-                                    style: TextStyle(
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.bold),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                              ),
-                            )
                         ],
                       ),
                     )
@@ -433,29 +383,6 @@ class _HomePageState extends State<HomePage> {
                                           child: Image.asset(
                                               'assets/user_avatar/bmw_user_img.png'),
                                         )),
-                                    Positioned(
-                                        top: 110,
-                                        left: 95,
-                                        child: Container(
-                                            width: 90,
-                                            height: 38,
-                                            decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                                color: Colors.blue),
-                                            child: Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                Text(
-                                                  '\$220/day',
-                                                  style: TextStyle(
-                                                      fontSize: 16,
-                                                      color: Colors.white),
-                                                  textAlign: TextAlign.center,
-                                                ),
-                                              ],
-                                            )))
                                   ],
                                 ))),
                         Expanded(
@@ -564,29 +491,6 @@ class _HomePageState extends State<HomePage> {
                                           child: Image.asset(
                                               'assets/user_avatar/ford_user_img.png'),
                                         )),
-                                    Positioned(
-                                        top: 110,
-                                        left: 95,
-                                        child: Container(
-                                            width: 90,
-                                            height: 38,
-                                            decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                                color: Colors.blue),
-                                            child: Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                Text(
-                                                  '\$220/day',
-                                                  style: TextStyle(
-                                                      fontSize: 16,
-                                                      color: Colors.white),
-                                                  textAlign: TextAlign.center,
-                                                ),
-                                              ],
-                                            )))
                                   ],
                                 ))),
                       ],
@@ -707,29 +611,6 @@ class _HomePageState extends State<HomePage> {
                                           child: Image.asset(
                                               'assets/user_avatar/audi_user_img.png'),
                                         )),
-                                    Positioned(
-                                        top: 110,
-                                        left: 95,
-                                        child: Container(
-                                            width: 90,
-                                            height: 38,
-                                            decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                                color: Colors.blue),
-                                            child: Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                Text(
-                                                  '\$220/day',
-                                                  style: TextStyle(
-                                                      fontSize: 16,
-                                                      color: Colors.white),
-                                                  textAlign: TextAlign.center,
-                                                ),
-                                              ],
-                                            )))
                                   ],
                                 ))),
                         Expanded(
@@ -838,29 +719,6 @@ class _HomePageState extends State<HomePage> {
                                           child: Image.asset(
                                               'assets/user_avatar/mercedes_user_img.png'),
                                         )),
-                                    Positioned(
-                                        top: 110,
-                                        left: 95,
-                                        child: Container(
-                                            width: 90,
-                                            height: 38,
-                                            decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                                color: Colors.blue),
-                                            child: Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                Text(
-                                                  '\$220/day',
-                                                  style: TextStyle(
-                                                      fontSize: 16,
-                                                      color: Colors.white),
-                                                  textAlign: TextAlign.center,
-                                                ),
-                                              ],
-                                            )))
                                   ],
                                 ))),
                       ],
@@ -1076,10 +934,10 @@ class _SilverHeader extends SliverPersistentHeaderDelegate {
   }
 
   @override
-  double get maxExtent => 190;
+  double get maxExtent => 150;
 
   @override
-  double get minExtent => 190;
+  double get minExtent => 150;
 
   @override
   bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) {

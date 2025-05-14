@@ -14,7 +14,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  String _email = '', _pwd = '';
+  String _email = '', _pwd = '',_verificationCode = '';
   bool _isClick = true;
   bool _isObscure = true;
   int _countdown = 0;

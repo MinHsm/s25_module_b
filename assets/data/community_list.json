@@ -1,0 +1,170 @@
+{
+  "hotPosts": [
+    {
+      "title": "你最经常对小爱同学喊出的指令是？",
+      "image": "assets/categories/car1.png",
+      "author": "用户A",
+      "likes": 91
+    },
+    {
+      "title": "小米SU7是否支持远程启动车辆？",
+      "image": "assets/categories/car2.png",
+      "author": "米米",
+      "likes": 136
+    },
+    {
+      "title": "SU7的续航表现如何？",
+      "image": "assets/categories/car3.jpeg",
+      "author": "电动爱好者",
+      "likes": 215
+    },
+    {
+      "title": "自动泊车功能使用体验分享",
+      "image": "assets/categories/car4.jpeg",
+      "author": "科技达人",
+      "likes": 178
+    },
+    {
+      "title": "SU7的音响效果测评",
+      "image": "assets/categories/car5.jpeg",
+      "author": "音乐发烧友",
+      "likes": 92
+    },
+    {
+      "title": "冬季电池续航实测",
+      "image": "assets/categories/car6.jpeg",
+      "author": "北方车主",
+      "likes": 304
+    },
+    {
+      "title": "SU7与竞品对比分析",
+      "image": "assets/categories/car7.jpeg",
+      "author": "汽车评测师",
+      "likes": 421
+    },
+    {
+      "title": "车机系统使用技巧大全",
+      "image": "assets/categories/car8.jpeg",
+      "author": "数码控",
+      "likes": 187
+    },
+    {
+      "title": "提车一个月真实感受",
+      "image": "assets/categories/car9.jpeg",
+      "author": "新车主",
+      "likes": 256
+    }
+  ],
+  "recommendPosts": [
+    {
+      "title": "小米SU7内饰怎么样？",
+      "image": "assets/categories/car3.jpeg",
+      "author": "用户b",
+      "likes": 36
+    },
+    {
+      "title": "推荐一个智能驾驶配置",
+      "image": "assets/categories/car4.jpeg",
+      "author": "用户c",
+      "likes": 53
+    },
+    {
+      "title": "SU7颜色选择指南",
+      "image": "assets/categories/car5.jpeg",
+      "author": "设计师",
+      "likes": 78
+    },
+    {
+      "title": "车载小爱同学隐藏功能",
+      "image": "assets/categories/car6.jpeg",
+      "author": "AI探索者",
+      "likes": 142
+    },
+    {
+      "title": "长途驾驶舒适性测评",
+      "image": "assets/categories/car7.jpeg",
+      "author": "旅行家",
+      "likes": 89
+    },
+    {
+      "title": "SU7改装方案分享",
+      "image": "assets/categories/car8.jpeg",
+      "author": "改装达人",
+      "likes": 211
+    },
+    {
+      "title": "充电桩选择建议",
+      "image": "assets/categories/car9.jpeg",
+      "author": "电动先锋",
+      "likes": 167
+    },
+    {
+      "title": "车险购买经验谈",
+      "image": "assets/categories/car1.png",
+      "author": "老司机",
+      "likes": 98
+    },
+    {
+      "title": "SU7储物空间实测",
+      "image": "assets/categories/car2.png",
+      "author": "家庭用户",
+      "likes": 74
+    }
+  ],
+  "latestPosts": [
+    {
+      "title": "刚提车，有哪些建议？",
+      "image": "assets/categories/car5.jpeg",
+      "author": "用户d",
+      "likes": 266
+    },
+    {
+      "title": "远程启动功能使用体验",
+      "image": "assets/categories/car2.png",
+      "author": "用户e",
+      "likes": 756
+    },
+    {
+      "title": "夜间驾驶灯光效果",
+      "image": "assets/categories/car3.jpeg",
+      "author": "夜行者",
+      "likes": 132
+    },
+    {
+      "title": "SU7赛道模式初体验",
+      "image": "assets/categories/car4.jpeg",
+      "author": "速度爱好者",
+      "likes": 321
+    },
+    {
+      "title": "车内空气质量测试",
+      "image": "assets/categories/car5.jpeg",
+      "author": "健康专家",
+      "likes": 87
+    },
+    {
+      "title": "SU7冬季保养指南",
+      "image": "assets/categories/car6.jpeg",
+      "author": "维修技师",
+      "likes": 154
+    },
+    {
+      "title": "车友会活动纪实",
+      "image": "assets/categories/car7.jpeg",
+      "author": "社区管理员",
+      "likes": 203
+    },
+    {
+      "title": "SU7智能钥匙使用技巧",
+      "image": "assets/categories/car8.jpeg",
+      "author": "技术宅",
+      "likes": 118
+    },
+    {
+      "title": "一年用车成本分析",
+      "image": "assets/categories/car9.jpeg",
+      "author": "精算师",
+      "likes": 289
+    }
+  ]
+}

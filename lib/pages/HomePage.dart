@@ -1,4 +1,6 @@
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:s25_module_b/component/SearchModal.dart';
 import 'package:s25_module_b/pages/CarPage.dart';
 
@@ -14,32 +16,69 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final TextEditingController _controller = TextEditingController();
 
+  int _currentIndex = 0;
+
   final List<CarData> carItems = [
     CarData(
         name: 'BMW X4 Sports',
-        imgPath: 'assets/car/bmw_car_img.png',
+        imgPath: 'assets/categories/car3.jpeg',
         description: '2019 · Comfort Class',
         price: 210,
         rating: 4.8),
     CarData(
         name: 'BMW X4 Sports',
-        imgPath: 'assets/car/bmw_car_img_black.png',
+        imgPath: 'assets/categories/car4.jpeg',
         description: '2019 · Comfort Class',
         price: 210,
         rating: 4.8),
     CarData(
         name: 'BMW X4 Sports',
-        imgPath: 'assets/car/bmw_car_img_red.jpg',
+        imgPath: 'assets/categories/car5.jpeg',
         description: '2019 · Comfort Class',
         price: 210,
         rating: 4.8),
     CarData(
         name: 'BMW X4 Sports',
-        imgPath: 'assets/car/bmw_car_img_sliver.jpg',
+        imgPath: 'assets/categories/car6.jpeg',
         description: '2019 · Comfort Class',
         price: 210,
         rating: 4.8)
   ];
+
+  Future<void> scanQRCode(BuildContext context) async {
+    // 存储最后一次扫描的结果，避免重复处理
+    String? lastScannedCode;
+
+    // 打开扫描界面
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => Scaffold(
+          appBar: AppBar(title: const Text('扫描二维码')),
+          body: MobileScanner(
+            onDetect: (capture) {
+              final List<Barcode> barcodes = capture.barcodes;
+              if (barcodes.isNotEmpty) {
+                final String? code = barcodes.first.rawValue;
+                if (code != null && code != lastScannedCode) {
+                  lastScannedCode = code;
+                  Navigator.pop(context, code); // 返回扫描结果
+                }
+              }
+            },
+          ),
+        ),
+      ),
+    ).then((result) {
+      // 处理扫描结果
+      if (result != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('扫描结果: $result')),
+        );
+        // 可以在这里处理扫描到的数据（如跳转页面、调用API等）
+      }
+    });
+  }
 
   int titleIndex = 0;
 
@@ -114,9 +153,13 @@ class _HomePageState extends State<HomePage> {
                               ),
                             ),
                           ),
-                          Container(
-                            margin: EdgeInsets.only(left: 15),
-                            child: Image.asset('assets/icon/filter_icon.png'),
+                          GestureDetector(
+                            onTap: () => scanQRCode(context),
+                            child: Container(
+                              margin: EdgeInsets.only(left: 15),
+                              child: Icon(Icons.qr_code_scanner,
+                                  size: 28, color: Colors.black54),
+                            ),
                           )
                         ],
                       ),
@@ -126,20 +169,64 @@ class _HomePageState extends State<HomePage> {
               ))),
           SliverList(
               delegate: SliverChildListDelegate([
-            Container(
-              height: 340,
-              child: Padding(
-                  padding: EdgeInsets.all(10),
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: carItems.length,
-                    itemBuilder: (context, index) {
-                      final car = carItems[index];
-                      return Car1(car: car);
+            SizedBox(
+              height: 10,
+            ),
+            Column(
+              children: [
+                // 🔁 轮播图部分
+                CarouselSlider.builder(
+                  itemCount: carItems.length,
+                  itemBuilder: (context, index, realIndex) {
+                    final car = carItems[index];
+                    return GestureDetector(
+                      onTap: () {
+                        // 可选跳转逻辑
+                      },
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 6),
+                        child: Car1(car: car),
+                      ),
+                    );
+                  },
+                  options: CarouselOptions(
+                    height: 240,
+                    autoPlay: true,
+                    enlargeCenterPage: true,
+                    enlargeStrategy: CenterPageEnlargeStrategy.scale,
+                    viewportFraction: 0.75,
+                    autoPlayInterval: Duration(seconds: 6),
+                    scrollPhysics: BouncingScrollPhysics(),
+                    onPageChanged: (index, reason) {
+                      setState(() {
+                        _currentIndex = index;
+                      });
                     },
-                  )),
+                  ),
+                ),
+
+                // 🔘 指示器部分
+                SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(carItems.length, (index) {
+                    bool isActive = index == _currentIndex;
+                    return AnimatedContainer(
+                      duration: Duration(milliseconds: 300),
+                      margin: EdgeInsets.symmetric(horizontal: 4),
+                      width: isActive ? 16 : 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: isActive ? Colors.blue : Colors.grey[400],
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    );
+                  }),
+                ),
+              ],
             ),
             Container(
+              margin: EdgeInsets.only(top: 10),
               height: 300,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -741,182 +828,106 @@ class Car1 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      child: Column(
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: EdgeInsets.only(top: 10, left: 10, right: 10),
-                child: Row(
-                  children: [
-                    Text(
-                      car.name,
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-                    ),
-                    Container(
-                      margin: EdgeInsets.only(left: 80),
-                      width: 80,
-                      height: 35,
-                      decoration: BoxDecoration(
-                          color: Colors.yellow[50],
-                          borderRadius: BorderRadius.circular(10)),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Icon(
-                            Icons.star,
-                            color: Colors.yellow[500],
-                          ),
-                          Text(
-                            car.rating.toString(),
-                            style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.yellow[500]),
-                          )
-                        ],
-                      ),
-                    )
-                  ],
-                ),
+    return Container(
+      width: 300,
+      margin: EdgeInsets.symmetric(horizontal: 8), // 外边距更宽松
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Stack(
+          children: [
+            // 背景图
+            Positioned.fill(
+              child: Image.asset(
+                car.imgPath,
+                fit: BoxFit.cover,
               ),
-              Padding(
-                padding: EdgeInsets.only(left: 10, top: 5),
-                child: Text(
-                  car.description,
-                  style: TextStyle(
-                    color: Colors.grey[400],
-                    fontSize: 18,
-                  ),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(left: 10, right: 10),
-                child: Container(
-                  height: 20,
-                  width: 120,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Container(
-                        width: 20,
-                        height: 20,
-                        child: Image.asset('assets/icon/seat_icon.png'),
-                      ),
-                      Text(
-                        '5',
-                        style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16),
-                      ),
-                      Container(
-                        width: 20,
-                        height: 20,
-                        child: Image.asset('assets/icon/gate_icon.png'),
-                      ),
-                      Text(
-                        '4',
-                        style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16),
-                      ),
-                      Container(
-                        width: 20,
-                        height: 20,
-                        child: Image.asset('assets/icon/bag_icon.png'),
-                      ),
-                      Text(
-                        '3',
-                        style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16),
-                      ),
+            ),
+
+            // 顶部渐变遮罩 + 阴影
+            Positioned.fill(
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.black.withOpacity(0.25),
+                      Colors.black.withOpacity(0.7),
                     ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
                   ),
                 ),
               ),
-              Padding(
-                padding: EdgeInsets.only(left: 10, right: 10, top: 10),
-                child: Container(
-                  height: 140,
-                  width: 300,
-                  child: Image.asset(car.imgPath),
-                ),
-              ),
-              Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                  child: Container(
-                    width: 300,
-                    height: 45,
-                    child: Row(
-                      mainAxisAlignment:
-                          MainAxisAlignment.spaceBetween, // 使两部分分开
+            ),
+
+            // 底部文字信息卡片样式
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                color: Colors.black.withOpacity(0.4),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // 标题 + 评分
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        // 价格部分
+                        Expanded(
+                          child: Text(
+                            car.name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
                         Container(
-                          width: 120,
-                          height: 40,
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.blue,
+                            borderRadius: BorderRadius.circular(5),
+                          ),
                           child: Row(
                             children: [
+                              Icon(Icons.star, color: Colors.white, size: 16),
+                              SizedBox(width: 4),
                               Text(
-                                "\$${car.price.toStringAsFixed(0)}",
-                                style: const TextStyle(
-                                  fontSize: 30,
-                                  color: Colors.blue,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              Text(
-                                ' per day',
+                                car.rating.toString(),
                                 style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.blue,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
                                 ),
                               ),
                             ],
                           ),
                         ),
-                        // 预订按钮
-                        SizedBox(
-                          width: 110,
-                          height: 35,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => CarPage(
-                                            car: car,
-                                          )));
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.blue,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              padding: EdgeInsets.zero, // 移除默认内边距
-                            ),
-                            child: const Text(
-                              '立即预定',
-                              style: TextStyle(color: Colors.white),
-                            ),
-                          ),
-                        ),
                       ],
                     ),
-                  )),
-            ],
-          )
-        ],
+                    SizedBox(height: 6),
+                    // 描述
+                    Text(
+                      car.description,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.9),
+                        fontSize: 14,
+                      ),
+                    ),
+                    SizedBox(height: 12),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

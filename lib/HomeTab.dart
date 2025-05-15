@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:s25_module_b/pages/CommunityPage.dart';
+import 'package:s25_module_b/pages/MallPage.dart';
 import 'package:s25_module_b/pages/MyPage.dart';
+import 'package:s25_module_b/pages/OrderPage.dart';
 
 import 'pages/HomePage.dart';
 
@@ -13,7 +15,12 @@ class HomeTab extends StatefulWidget {
 }
 
 class _HomeTabState extends State<HomeTab> {
-  final List<Widget> pages = [HomePage(), CommunityPage(), Tab3(), MyPage()];
+  final List<Widget> pages = [
+    HomePage(),
+    CommunityPage(),
+    MallPage(),
+    MyPage()
+  ];
 
   int tabIndex = 0;
 
@@ -66,17 +73,6 @@ class _HomeTabState extends State<HomeTab> {
               label: '我的',
             )
           ]),
-    );
-  }
-}
-
-class Tab3 extends StatelessWidget {
-  const Tab3({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text('tab3'),
     );
   }
 }

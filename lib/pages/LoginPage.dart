@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../HomeTab.dart';
+import '../module/data.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -14,17 +16,154 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  String _email = '', _pwd = '',_verificationCode = '';
+  String _email = '', _pwd = '', _verificationCode = '';
   bool _isClick = true;
   bool _isObscure = true;
   int _countdown = 0;
+  String _tempCode = ''; // 存储临时验证码
 
+  DateTime? _codeExpireTime;
+  final _codeController = TextEditingController();
+
+  // 邮箱正则验证
+  final _emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+
+  // 生成6位随机验证码
+  String _generateVerificationCode() {
+    final random = Random();
+    return List.generate(6, (index) => random.nextInt(10)).join();
+  }
+
+  // 获取验证码（带邮箱验证）
   void _getVerificationCode() {
-    setState(() => _countdown = 60);
-    Timer.periodic(Duration(seconds: 1), (timer) {
-      setState(() => _countdown--);
-      if (_countdown <= 0) timer.cancel();
-    });
+    // 1. 验证邮箱格式
+    if (_email.isEmpty || !_emailRegex.hasMatch(_email)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('请输入有效的邮箱地址')),
+      );
+      return;
+    }
+
+    // 2. 生成验证码并设置有效期（5分钟）
+    _tempCode = _generateVerificationCode();
+    _codeExpireTime = DateTime.now().add(const Duration(minutes: 5));
+
+    // 3. 显示验证码对话框
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('验证码（开发测试用）'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('邮箱: $_email'),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                Text('验证码: $_tempCode'),
+                IconButton(
+                  icon: const Icon(Icons.copy),
+                  onPressed: () {
+                    Clipboard.setData(ClipboardData(text: _tempCode));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('已复制验证码')),
+                    );
+                  },
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Text(
+                '有效期至: ${_codeExpireTime!.hour}:${_codeExpireTime!.minute.toString().padLeft(2, '0')}'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              // 自动填充验证码
+              _codeController.text = _tempCode;
+              // 开始倒计时
+              setState(() => _countdown = 60);
+              Timer.periodic(const Duration(seconds: 1), (timer) {
+                setState(() => _countdown--);
+                if (_countdown <= 0) timer.cancel();
+              });
+            },
+            child: const Text('自动填充'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 验证码有效性检查
+  bool _validateVerificationCode() {
+    if (_codeExpireTime == null || DateTime.now().isAfter(_codeExpireTime!)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('验证码已过期，请重新获取')),
+      );
+      return false;
+    }
+    if (_verificationCode != _tempCode) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('验证码不正确')),
+      );
+      return false;
+    }
+    return true;
+  }
+
+  void _handleLoginOrRegister() {
+    if (_isClick) {
+      // 登录逻辑
+      final user = UserService.login(_email, _pwd);
+      if (user != null) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => HomeTab()),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('用户名或密码错误')),
+        );
+      }
+    } else {
+      // 注册逻辑
+      if (_verificationCode.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('请输入验证码')),
+        );
+        return;
+      }
+
+      UserService.register(User(
+        email: _email,
+        password: _pwd,
+        verificationCode: _verificationCode,
+      ));
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('注册成功，请登录')),
+      );
+      setState(() => _isClick = true);
+    }
+  }
+
+  void _submit() {
+    if (!_isClick) {
+      // 注册时需要验证验证码
+      if (!_validateVerificationCode()) return;
+    }
+    _handleLoginOrRegister();
+    print('邮箱: $_email, 密码: $_pwd');
+  }
+
+  @override
+  void dispose() {
+    _codeController.dispose();
+    super.dispose();
   }
 
   @override
@@ -86,7 +225,7 @@ class _LoginPageState extends State<LoginPage> {
                                 ),
                                 alignment: Alignment.center,
                                 child: Text(
-                                  '登录', // 动态文本
+                                  '登录',
                                   style: TextStyle(
                                     color:
                                         _isClick ? Colors.white : Colors.blue,
@@ -110,7 +249,7 @@ class _LoginPageState extends State<LoginPage> {
                                 ),
                                 alignment: Alignment.center,
                                 child: Text(
-                                  '注册', // 动态文本
+                                  '注册',
                                   style: TextStyle(
                                     color:
                                         _isClick ? Colors.blue : Colors.white,
@@ -122,12 +261,16 @@ class _LoginPageState extends State<LoginPage> {
                           )
                         ],
                       ),
-                      SizedBox(
-                        height: 50,
-                      ),
+                      SizedBox(height: 50),
                       Padding(
                         padding: EdgeInsets.all(10),
                         child: TextFormField(
+                          validator: (value) => value?.isEmpty ??
+                                  true || !_emailRegex.hasMatch(value!)
+                              ? '请输入有效的邮箱'
+                              : null,
+                          keyboardType: TextInputType.emailAddress,
+                          onChanged: (value) => _email = value,
                           decoration: InputDecoration(
                               labelText: '邮箱',
                               prefixIcon: Icon(
@@ -140,6 +283,7 @@ class _LoginPageState extends State<LoginPage> {
                         padding: EdgeInsets.only(
                             top: 25, left: 10, right: 10, bottom: 20),
                         child: TextFormField(
+                          onChanged: (value) => _pwd = value,
                           obscureText: _isObscure,
                           decoration: InputDecoration(
                               labelText: '密码',
@@ -155,44 +299,37 @@ class _LoginPageState extends State<LoginPage> {
                                   },
                                   icon: Icon(_isObscure
                                       ? Icons.visibility_off
-                                      : Icons.visibility))),
+                                      : Icons.visibility)),),
                         ),
                       ),
-                      if (!_isClick) ...[
+                      if (!_isClick)
                         Padding(
                           padding: EdgeInsets.only(
                               top: 15, left: 10, right: 10, bottom: 20),
                           child: TextFormField(
+                            onChanged: (value) => _verificationCode = value,
                             decoration: InputDecoration(
-                                labelText: '验证码',
-                                prefixIcon: Icon(Icons.verified_user,
-                                    color: Colors.grey[600]),
-                                suffixIcon: Container(
-                                  width: 100,
-                                  child: TextButton(
-                                      onPressed: _countdown > 0
-                                          ? null
-                                          : _getVerificationCode,
-                                      child: Text(
-                                        _countdown > 0
-                                            ? '${_countdown}s'
-                                            : '获取验证码',
-                                        style: TextStyle(color: Colors.blue),
-                                      )),
-                                )),
+                              labelText: '验证码',
+                              prefixIcon: Icon(Icons.verified_user,
+                                  color: Colors.grey[600]),
+                              suffixIcon: Container(
+                                width: 100,
+                                child: TextButton(
+                                  onPressed: _countdown > 0
+                                      ? null
+                                      : _getVerificationCode,
+                                  child: Text(
+                                    _countdown > 0 ? '${_countdown}s' : '获取验证码',
+                                    style: TextStyle(color: Colors.blue),
+                                  ),
+                                ),
+                              ),
+                            ),
                           ),
-                        )
-                      ],
+                        ),
                       Center(
                         child: GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => HomeTab()));
-                            });
-                          },
+                          onTap: _submit,
                           child: Container(
                             width: 230,
                             height: 55,
@@ -203,17 +340,13 @@ class _LoginPageState extends State<LoginPage> {
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                SizedBox(
-                                  width: 30,
-                                ),
+                                SizedBox(width: 30),
                                 Icon(
                                   Icons.ads_click,
                                   color: Colors.white,
                                   size: 24,
                                 ),
-                                SizedBox(
-                                  width: 45,
-                                ),
+                                SizedBox(width: 45),
                                 Text(
                                   _isClick ? '登录' : '注册',
                                   style: TextStyle(
@@ -226,9 +359,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         ),
                       ),
-                      SizedBox(
-                        height: 20,
-                      ),
+                      SizedBox(height: 20),
                       Center(
                         child: Text(
                           _isClick ? '忘记密码 ?' : '',

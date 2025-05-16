@@ -28,19 +28,21 @@ class MallPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final themeColor = Colors.orange[700];
+    final themeColor = Colors.blue[700]; // 蓝色主题主色
+    final screenWidth = MediaQuery.of(context).size.width;
+    final crossAxisCount = screenWidth > 600 ? 3 : 2; // 响应式：宽屏三列，窄屏两列
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('小米商城'),
+        title: Text('商城'),
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
         elevation: 0.5,
       ),
-      backgroundColor: Color(0xFFF6F6F6),
+      backgroundColor: const Color(0xFFF5F6FA),
       body: Column(
         children: [
-          // 搜索框
+          // 🔍 搜索框
           Padding(
             padding: const EdgeInsets.all(12.0),
             child: TextField(
@@ -58,79 +60,78 @@ class MallPage extends StatelessWidget {
             ),
           ),
 
-          // 商品列表
+          // 🛍️ 商品网格列表
           Expanded(
             child: GridView.builder(
-              padding: EdgeInsets.symmetric(horizontal: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 12),
               itemCount: products.length,
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2, // 两列
+                crossAxisCount: crossAxisCount,
                 crossAxisSpacing: 12,
                 mainAxisSpacing: 12,
-                childAspectRatio: 0.75,
+                childAspectRatio: 0.7, // 适配不同屏幕
               ),
               itemBuilder: (context, index) {
                 final product = products[index];
-                return GestureDetector(
-                  onTap: () {
-                    // 点击商品可以跳转详情页
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('点击了：${product['name']}')),
-                    );
-                  },
-                  child: Card(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16)),
-                    elevation: 3,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // 商品图
-                        ClipRRect(
-                          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-                          child: Image.asset(
-                            product['image'],
-                            height: 120,
-                            width: double.infinity,
-                            fit: BoxFit.cover,
+                return Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  elevation: 2,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // 商品图
+                      ClipRRect(
+                        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                        child: Image.asset(
+                          product['image'],
+                          height: 120,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          product['name'],
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Text(
+                          '￥${product['price']}',
+                          style: TextStyle(
+                            color: themeColor,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
                           ),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(product['name'],
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(fontWeight: FontWeight.bold)),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Text(
-                            '￥${product['price']}',
-                            style: TextStyle(
-                                color: themeColor, fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                        Spacer(),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton(
-                              onPressed: () {
-                                // 跳转下单或详情页
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: themeColor,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
+                      ),
+                      const Spacer(),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              // TODO: 跳转详情页或下单
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: themeColor,
+                              padding: EdgeInsets.symmetric(vertical: 10),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
                               ),
-                              child: Text('立即订购', style: TextStyle(fontSize: 13)),
                             ),
+                            child: const Text('立即订购', style: TextStyle(fontSize: 13,color: Colors.white)),
                           ),
-                        )
-                      ],
-                    ),
+                        ),
+                      )
+                    ],
                   ),
                 );
               },

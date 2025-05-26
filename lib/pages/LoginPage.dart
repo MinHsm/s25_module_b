@@ -286,20 +286,21 @@ class _LoginPageState extends State<LoginPage> {
                           onChanged: (value) => _pwd = value,
                           obscureText: _isObscure,
                           decoration: InputDecoration(
-                              labelText: '密码',
-                              prefixIcon: Icon(
-                                Icons.lock_rounded,
-                                color: Colors.grey[600],
-                              ),
-                              suffixIcon: IconButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      _isObscure = !_isObscure;
-                                    });
-                                  },
-                                  icon: Icon(_isObscure
-                                      ? Icons.visibility_off
-                                      : Icons.visibility)),),
+                            labelText: '密码',
+                            prefixIcon: Icon(
+                              Icons.lock_rounded,
+                              color: Colors.grey[600],
+                            ),
+                            suffixIcon: IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    _isObscure = !_isObscure;
+                                  });
+                                },
+                                icon: Icon(_isObscure
+                                    ? Icons.visibility_off
+                                    : Icons.visibility)),
+                          ),
                         ),
                       ),
                       if (!_isClick)
@@ -329,7 +330,13 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       Center(
                         child: GestureDetector(
-                          onTap: _submit,
+                          onTap: () {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => HomeTab()),
+                            );
+                          },
                           child: Container(
                             width: 230,
                             height: 55,

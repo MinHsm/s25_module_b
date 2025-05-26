@@ -2,7 +2,6 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:s25_module_b/component/SearchModal.dart';
-import 'package:s25_module_b/pages/CarPage.dart';
 
 import '../module/data.dart';
 

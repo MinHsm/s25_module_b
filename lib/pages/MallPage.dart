@@ -28,13 +28,13 @@ class MallPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final themeColor = Colors.blue[700]; // 蓝色主题主色
+    final themeColor = Colors.blue[700];
     final screenWidth = MediaQuery.of(context).size.width;
-    final crossAxisCount = screenWidth > 600 ? 3 : 2; // 响应式：宽屏三列，窄屏两列
+    final crossAxisCount = screenWidth > 600 ? 4 : 2;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('商城'),
+        title: const Text('商城'),
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
         elevation: 0.5,
@@ -48,10 +48,10 @@ class MallPage extends StatelessWidget {
             child: TextField(
               decoration: InputDecoration(
                 hintText: '搜索车型/配件',
-                prefixIcon: Icon(Icons.search),
+                prefixIcon: const Icon(Icons.search),
                 fillColor: Colors.white,
                 filled: true,
-                contentPadding: EdgeInsets.symmetric(vertical: 12),
+                contentPadding: const EdgeInsets.symmetric(vertical: 12),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(24),
                   borderSide: BorderSide.none,
@@ -59,85 +59,97 @@ class MallPage extends StatelessWidget {
               ),
             ),
           ),
-
-          // 🛍️ 商品网格列表
+          // 🛍️ 商品网格
           Expanded(
-            child: GridView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              itemCount: products.length,
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: crossAxisCount,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-                childAspectRatio: 0.7, // 适配不同屏幕
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 6),
+              child: GridView.builder(
+                itemCount: products.length,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: crossAxisCount,
+                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 14,
+                  childAspectRatio: 0.65,
+                ),
+                itemBuilder: (context, index) {
+                  final product = products[index];
+                  return _buildProductCard(product, themeColor);
+                },
               ),
-              itemBuilder: (context, index) {
-                final product = products[index];
-                return Card(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  elevation: 2,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // 商品图
-                      ClipRRect(
-                        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-                        child: Image.asset(
-                          product['image'],
-                          height: 120,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          product['name'],
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        child: Text(
-                          '￥${product['price']}',
-                          style: TextStyle(
-                            color: themeColor,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 15,
-                          ),
-                        ),
-                      ),
-                      const Spacer(),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              // TODO: 跳转详情页或下单
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: themeColor,
-                              padding: EdgeInsets.symmetric(vertical: 10),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                            ),
-                            child: const Text('立即订购', style: TextStyle(fontSize: 13,color: Colors.white)),
-                          ),
-                        ),
-                      )
-                    ],
-                  ),
-                );
-              },
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  // 🧩 单个商品卡片组件（避免溢出）
+  Widget _buildProductCard(Map<String, dynamic> product, Color? themeColor) {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      clipBehavior: Clip.antiAlias,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 商品图
+              SizedBox(
+                height: constraints.maxHeight * 0.45,
+                width: double.infinity,
+                child: Image.asset(
+                  product['image'],
+                  fit: BoxFit.cover,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(8, 10, 8, 4),
+                child: Text(
+                  product['name'],
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 14),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Text(
+                  '￥${product['price']}',
+                  style: TextStyle(
+                    color: themeColor,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                  ),
+                ),
+              ),
+              const Spacer(),
+              Padding(
+                padding: const EdgeInsets.all(8),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      // TODO: 跳转详情页或下单
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: themeColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                    ),
+                    child: const Text(
+                      '立即订购',
+                      style: TextStyle(fontSize: 13, color: Colors.white),
+                    ),
+                  ),
+                ),
+              )
+            ],
+          );
+        },
       ),
     );
   }

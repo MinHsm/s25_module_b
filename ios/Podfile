@@ -1,0 +1,31 @@
+platform :ios, '11.0'
+
+# 定义Flutter应用路径（自动检测或手动指定）
+flutter_application_path = File.expand_path('..', __FILE__)
+
+# 定义Flutter SDK路径（根据你的实际路径修改）
+$flutter_sdk_path = '/Users/ming/flutterSdk/flutter'
+
+def flutter_root
+  $flutter_sdk_path
+end
+
+require File.join(flutter_root, 'packages', 'flutter_tools', 'bin', 'podhelper')
+
+target 'Runner' do
+  use_frameworks!
+  use_modular_headers!
+
+  # 安装所有Flutter插件
+  flutter_install_all_ios_pods(flutter_root)
+
+  # 手动添加插件（如果需要）
+  pod 'path_provider_foundation', :path => File.join(flutter_application_path, '.symlinks', 'plugins', 'path_provider_foundation', 'ios')
+  pod 'shared_preferences_foundation', :path => File.join(flutter_application_path, '.symlinks', 'plugins', 'shared_preferences_foundation', 'ios')
+end
+
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    flutter_additional_ios_build_settings(target)
+  end
+end

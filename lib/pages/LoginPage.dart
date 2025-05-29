@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 
 import '../HomeTab.dart';
 import '../module/data.dart';
+import 'ForgotPasswordPage.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -382,11 +383,19 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       SizedBox(height: 20),
                       Center(
-                        child: Text(
-                          _isClick ? '忘记密码 ?' : '',
-                          style: TextStyle(color: Colors.blue, fontSize: 16),
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => ForgotPasswordPage()),
+                            );
+                          },
+                          child: Text(
+                            _isClick ? '忘记密码 ?' : '',
+                            style: TextStyle(color: Colors.blue, fontSize: 16),
+                          ),
                         ),
-                      )
+                      ),
                     ],
                   ),
                   Positioned(

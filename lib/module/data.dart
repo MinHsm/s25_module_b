@@ -30,12 +30,12 @@ class User {
 }
 
 class UserService {
-  static const String _userKey = 'registered_users';
+  static const String userKey = 'registered_users';
 
   /// 保存注册用户
   static Future<void> register(User user) async {
     final prefs = await SharedPreferences.getInstance();
-    final users = await _loadUsers();
+    final users = await loadUsers();
 
     // 防止重复注册
     if (users.any((u) => u['email'] == user.email)) return;
@@ -45,12 +45,12 @@ class UserService {
       'password': user.password,
     });
 
-    await prefs.setString(_userKey, jsonEncode(users));
+    await prefs.setString(userKey, jsonEncode(users));
   }
 
   /// 登录验证
   static Future<User?> login(String email, String password) async {
-    final users = await _loadUsers();
+    final users = await loadUsers();
     final matched = users.firstWhere(
         (u) => u['email'] == email && u['password'] == password,
         orElse: () => <String, dynamic>{});
@@ -68,9 +68,9 @@ class UserService {
     return null;
   }
 
-  static Future<List<Map<String, dynamic>>> _loadUsers() async {
+  static Future<List<Map<String, dynamic>>> loadUsers() async {
     final prefs = await SharedPreferences.getInstance();
-    final jsonStr = prefs.getString(_userKey);
+    final jsonStr = prefs.getString(userKey);
     if (jsonStr == null) return [];
     final decoded = jsonDecode(jsonStr);
     return List<Map<String, dynamic>>.from(decoded);

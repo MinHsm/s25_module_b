@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:s25_module_b/module/data.dart';
+import 'package:s25_module_b/pages/AboutPage.dart';
 
 import 'LoginPage.dart';
 
@@ -60,8 +62,9 @@ class MyPage extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 20),
             child: TextButton.icon(
-              onPressed: () {
+              onPressed: () async {
                 // 添加退出逻辑
+                await UserService.logout();
                 Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(builder: (context) => LoginPage()),
@@ -83,9 +86,13 @@ class MyPage extends StatelessWidget {
       title: Text(title),
       trailing: Icon(Icons.chevron_right),
       onTap: () {
-        // 可根据 title 或独立导航处理
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text("点击了：$title")));
+        if (title == '关于我们') {
+          Navigator.push(
+              context, MaterialPageRoute(builder: (context) => AboutPage()));
+        } else {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text("点击了：$title")));
+        }
       },
     );
   }

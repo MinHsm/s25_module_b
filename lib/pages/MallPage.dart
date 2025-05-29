@@ -1,30 +1,58 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 
-class MallPage extends StatelessWidget {
-  final List<Map<String, dynamic>> products = [
-    {
-      'name': '小米SU7 Max 高性能版',
-      'price': 299900,
-      'image': 'assets/categories/car1.png'
-    },
-    {
-      'name': '小米SU7 Lite 标准版',
-      'price': 249900,
-      'image': 'assets/categories/car2.png'
-    },
-    {
-      'name': '小米原装充电桩',
-      'price': 3499,
-      'image': 'assets/categories/car5.jpeg'
-    },
-    {
-      'name': 'SU7 内饰氛围灯套装',
-      'price': 799,
-      'image': 'assets/categories/car4.jpeg'
-    },
+class MallPage extends StatefulWidget {
+  const MallPage({super.key});
+
+  @override
+  State<MallPage> createState() => _MallPageState();
+}
+
+class _MallPageState extends State<MallPage> {
+  List<dynamic> allProducts = [];
+  List<dynamic> filteredProducts = [];
+  String selectedCategory = '全部';
+  String selectedSort = '默认';
+
+  final List<String> banners = [
+    'assets/banner/banner1.jpg',
+    'assets/banner/banner2.jpeg',
   ];
 
-  MallPage({super.key});
+  Future<void> loadProducts() async {
+    final String response = await rootBundle.loadString('assets/data/products.json');
+    final data = json.decode(response);
+    setState(() {
+      allProducts = data;
+      applyFilterAndSort();
+    });
+  }
+
+  void applyFilterAndSort() {
+    List<dynamic> temp = List.from(allProducts);
+
+    if (selectedCategory != '全部') {
+      temp = temp.where((item) => item['category'] == selectedCategory).toList();
+    }
+
+    if (selectedSort == '价格升序') {
+      temp.sort((a, b) => a['price'].compareTo(b['price']));
+    } else if (selectedSort == '价格降序') {
+      temp.sort((a, b) => b['price'].compareTo(a['price']));
+    } else if (selectedSort == '销量降序') {
+      temp.sort((a, b) => b['sales'].compareTo(a['sales']));
+    }
+
+    filteredProducts = temp;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    loadProducts();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +70,6 @@ class MallPage extends StatelessWidget {
       backgroundColor: const Color(0xFFF5F6FA),
       body: Column(
         children: [
-          // 🔍 搜索框
           Padding(
             padding: const EdgeInsets.all(12.0),
             child: TextField(
@@ -59,97 +86,139 @@ class MallPage extends StatelessWidget {
               ),
             ),
           ),
-          // 🛍️ 商品网格
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 6),
-              child: GridView.builder(
-                itemCount: products.length,
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: crossAxisCount,
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 14,
-                  childAspectRatio: 0.65,
-                ),
-                itemBuilder: (context, index) {
-                  final product = products[index];
-                  return _buildProductCard(product, themeColor);
+          CarouselSlider(
+            options: CarouselOptions(
+              height: 160,
+              autoPlay: true,
+              enlargeCenterPage: true,
+              viewportFraction: 0.9,
+            ),
+            items: banners.map((banner) {
+              return Builder(
+                builder: (context) {
+                  return ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.asset(banner, fit: BoxFit.cover, width: double.infinity),
+                  );
                 },
-              ),
+              );
+            }).toList(),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                DropdownButton<String>(
+                  value: selectedCategory,
+                  items: ['全部', '整车', '配件'].map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      selectedCategory = value!;
+                      applyFilterAndSort();
+                    });
+                  },
+                ),
+                DropdownButton<String>(
+                  value: selectedSort,
+                  items: ['默认', '价格升序', '价格降序', '销量降序']
+                      .map((s) => DropdownMenuItem(value: s, child: Text(s)))
+                      .toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      selectedSort = value!;
+                      applyFilterAndSort();
+                    });
+                  },
+                )
+              ],
             ),
           ),
+          Expanded(
+            child: RefreshIndicator(
+              onRefresh: () async => await loadProducts(),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 6),
+                child: GridView.builder(
+                  itemCount: filteredProducts.length,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: crossAxisCount,
+                    crossAxisSpacing: 10,
+                    mainAxisSpacing: 14,
+                    childAspectRatio: 0.65,
+                  ),
+                  itemBuilder: (context, index) {
+                    final product = filteredProducts[index];
+                    return _buildProductCard(context, product, themeColor);
+                  },
+                ),
+              ),
+            ),
+          )
         ],
       ),
     );
   }
 
-  // 🧩 单个商品卡片组件（避免溢出）
-  Widget _buildProductCard(Map<String, dynamic> product, Color? themeColor) {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      clipBehavior: Clip.antiAlias,
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // 商品图
-              SizedBox(
-                height: constraints.maxHeight * 0.45,
+  Widget _buildProductCard(BuildContext context, Map<String, dynamic> product, Color? themeColor) {
+    return GestureDetector(
+      onTap: () => ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('点击了：${product['name']}')),
+      ),
+      child: Card(
+        elevation: 4,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              flex: 4,
+              child: Image.asset(product['image'], fit: BoxFit.cover, width: double.infinity),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(8, 10, 8, 4),
+              child: Text(product['name'], maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Text('￥${product['price']}', style: TextStyle(color: themeColor, fontWeight: FontWeight.bold, fontSize: 15)),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('月销: ${product['sales']}+', style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                  const Row(
+                    children: [
+                      Icon(Icons.star, size: 12, color: Colors.orange),
+                      Icon(Icons.star, size: 12, color: Colors.orange),
+                      Icon(Icons.star, size: 12, color: Colors.orange),
+                      Icon(Icons.star, size: 12, color: Colors.orange),
+                      Icon(Icons.star, size: 12, color: Colors.orange),
+                    ],
+                  )
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8),
+              child: SizedBox(
                 width: double.infinity,
-                child: Image.asset(
-                  product['image'],
-                  fit: BoxFit.cover,
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(8, 10, 8, 4),
-                child: Text(
-                  product['name'],
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 14),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: Text(
-                  '￥${product['price']}',
-                  style: TextStyle(
-                    color: themeColor,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
+                child: ElevatedButton(
+                  onPressed: () {},
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: themeColor,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                    padding: const EdgeInsets.symmetric(vertical: 10),
                   ),
+                  child: const Text('立即订购', style: TextStyle(fontSize: 13, color: Colors.white)),
                 ),
               ),
-              const Spacer(),
-              Padding(
-                padding: const EdgeInsets.all(8),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      // TODO: 跳转详情页或下单
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: themeColor,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 10),
-                    ),
-                    child: const Text(
-                      '立即订购',
-                      style: TextStyle(fontSize: 13, color: Colors.white),
-                    ),
-                  ),
-                ),
-              )
-            ],
-          );
-        },
+            )
+          ],
+        ),
       ),
     );
   }

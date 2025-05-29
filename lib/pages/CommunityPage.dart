@@ -1,9 +1,13 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'CarDetailPage.dart';
+import 'CreatePostPage.dart';
 
 class CommunityPage extends StatefulWidget {
   const CommunityPage({super.key});
@@ -17,14 +21,31 @@ class _CommunityPageState extends State<CommunityPage>
   late TabController _tabController;
 
   List<Map<String, dynamic>> hotPosts = [];
-
   List<Map<String, dynamic>> recommendPosts = [];
-
   List<Map<String, dynamic>> latestPosts = [];
 
   Future<void> loadPostData() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final savedData = prefs.getString('communityData');
+
+      if (savedData != null) {
+        final Map<String, dynamic> data = json.decode(savedData);
+        setState(() {
+          hotPosts = List<Map<String, dynamic>>.from(data['hotPosts'] ?? []);
+          recommendPosts =
+          List<Map<String, dynamic>>.from(data['recommendPosts'] ?? []);
+          latestPosts =
+          List<Map<String, dynamic>>.from(data['latestPosts'] ?? []);
+        });
+        return;
+      }
+    } catch (e) {
+      print('加载本地数据失败: $e');
+    }
+
     final String jsonStr =
-        await rootBundle.loadString('assets/data/community_list.json');
+    await rootBundle.loadString('assets/data/community_list.json');
     final Map<String, dynamic> data = json.decode(jsonStr);
 
     setState(() {
@@ -32,6 +53,51 @@ class _CommunityPageState extends State<CommunityPage>
       recommendPosts = List<Map<String, dynamic>>.from(data['recommendPosts']);
       latestPosts = List<Map<String, dynamic>>.from(data['latestPosts']);
     });
+  }
+
+  void addNewPost(Map<String, dynamic> newPost) {
+    final updatedLatestPosts = List<Map<String, dynamic>>.from(latestPosts);
+    updatedLatestPosts.insert(0, newPost);
+
+    setState(() {
+      latestPosts = updatedLatestPosts;
+      recommendPosts = [newPost, ...recommendPosts.take(4)];
+    });
+
+    _saveToJson();
+  }
+
+  Future<void> _saveToJson() async {
+    final newData = {
+      'hotPosts': hotPosts,
+      'recommendPosts': recommendPosts,
+      'latestPosts': latestPosts,
+    };
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('communityData', json.encode(newData));
+
+    final dir = await getApplicationDocumentsDirectory();
+    final file = File('${dir.path}/community_data.json');
+    await file.writeAsString(json.encode(newData));
+  }
+
+  Widget _buildPostImage(String path) {
+    if (path.startsWith('/')) {
+      return Image.file(
+        File(path),
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: 140,
+      );
+    } else {
+      return Image.asset(
+        path,
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: 140,
+      );
+    }
   }
 
   @override
@@ -74,12 +140,7 @@ class _CommunityPageState extends State<CommunityPage>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Image.asset(
-                      post['image'],
-                      fit: BoxFit.cover,
-                      width: double.infinity,
-                      height: 140, // 固定图片高度
-                    ),
+                    _buildPostImage(post['image']),
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Text(post['title'],
@@ -135,13 +196,39 @@ class _CommunityPageState extends State<CommunityPage>
           ],
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          buildPostGrid(hotPosts),
-          buildPostGrid(recommendPosts),
-          buildPostGrid(latestPosts),
-        ],
+      body: RefreshIndicator(
+          child: TabBarView(
+            controller: _tabController,
+            children: [
+              buildPostGrid(hotPosts),
+              buildPostGrid(recommendPosts),
+              buildPostGrid(latestPosts),
+            ],
+          ),
+          onRefresh: loadPostData),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          final newPost = await Navigator.push<Map<String, dynamic>>(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const CreatePostPage(),
+            ),
+          );
+
+          if (newPost != null && mounted) {
+            final postWithTime = {
+              ...newPost,
+              'timestamp': DateTime.now().millisecondsSinceEpoch,
+            };
+            addNewPost(postWithTime);
+
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text('"${newPost['title']}"已发布'),
+              duration: Duration(seconds: 2),
+            ));
+          }
+        },
+        child: Icon(Icons.add),
       ),
     );
   }

@@ -1,0 +1,86 @@
+[
+  {
+    "name": "小米SU7 Max 高性能版",
+    "price": 299900,
+    "image": "assets/categories/car1.png",
+    "sales": 3000,
+    "category": "整车"
+  },
+  {
+    "name": "小米SU7 Lite 标准版",
+    "price": 249900,
+    "image": "assets/categories/car2.png",
+    "sales": 5000,
+    "category": "整车"
+  },
+  {
+    "name": "小米原装充电桩",
+    "price": 3499,
+    "image": "assets/categories/car5.jpeg",
+    "sales": 1500,
+    "category": "配件"
+  },
+  {
+    "name": "SU7 内饰氛围灯套装",
+    "price": 799,
+    "image": "assets/categories/car4.jpeg",
+    "sales": 2600,
+    "category": "配件"
+  },
+  {
+    "name": "智能HUD抬头显示器",
+    "price": 2599,
+    "image": "assets/categories/car6.jpeg",
+    "sales": 1200,
+    "category": "配件"
+  },
+  {
+    "name": "全车贴膜套装",
+    "price": 3999,
+    "image": "assets/categories/car7.jpeg",
+    "sales": 1800,
+    "category": "配件"
+  },
+  {
+    "name": "高性能轮胎套装",
+    "price": 7999,
+    "image": "assets/categories/car8.jpeg",
+    "sales": 2300,
+    "category": "配件"
+  },
+  {
+    "name": "智能驾驶辅助系统",
+    "price": 8999,
+    "image": "assets/categories/car9.jpeg",
+    "sales": 900,
+    "category": "配件"
+  },
+  {
+    "name": "车载冰箱小巧版",
+    "price": 1999,
+    "image": "assets/categories/car4.jpeg",
+    "sales": 1100,
+    "category": "配件"
+  },
+  {
+    "name": "限量纪念版SU7",
+    "price": 359900,
+    "image": "assets/categories/car7.jpeg",
+    "sales": 200,
+    "category": "整车"
+  },
+  {
+    "name": "智能语音车载助手",
+    "price": 999,
+    "image": "assets/categories/car6.jpeg",
+    "sales": 3200,
+    "category": "配件"
+  },
+  {
+    "name": "车载空气净化器Pro",
+    "price": 1299,
+    "image": "assets/categories/car9.jpeg",
+    "sales": 2700,
+    "category": "配件"
+  }
+]

@@ -33,6 +33,8 @@ dependencies:
   shared_preferences: ^2.2.2
   mobile_scanner: ^3.5.0
   carousel_slider: ^5.0.0
+  image_picker: ^1.1.0
+  path_provider: ^2.1.1
   flutter:
     sdk: flutter
 
@@ -71,6 +73,7 @@ flutter:
     - assets/map/
     - assets/user_avatar/
     - assets/data/
+    - assets/banner/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

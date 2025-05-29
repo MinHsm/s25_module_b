@@ -21,6 +21,7 @@ class _LoginPageState extends State<LoginPage> {
   bool _isObscure = true;
   int _countdown = 0;
   String _tempCode = ''; // 存储临时验证码
+  Timer? _countdownTimer;
 
   DateTime? _codeExpireTime;
   final _codeController = TextEditingController();
@@ -36,7 +37,14 @@ class _LoginPageState extends State<LoginPage> {
 
   // 获取验证码（带邮箱验证）
   void _getVerificationCode() {
-    // 1. 验证邮箱格式
+    // 检查冷却时间
+    if (_countdown > 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('请等待${_countdown}秒后再获取')),
+      );
+      return;
+    }
+    // 验证邮箱格式
     if (_email.isEmpty || !_emailRegex.hasMatch(_email)) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('请输入有效的邮箱地址')),
@@ -47,6 +55,17 @@ class _LoginPageState extends State<LoginPage> {
     // 2. 生成验证码并设置有效期（5分钟）
     _tempCode = _generateVerificationCode();
     _codeExpireTime = DateTime.now().add(const Duration(minutes: 5));
+
+    // 开始倒计时
+    setState(() => _countdown = 60);
+    _countdownTimer?.cancel(); // 取消之前的计时器
+    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_countdown > 0) {
+        setState(() => _countdown--);
+      } else {
+        timer.cancel();
+      }
+    });
 
     // 3. 显示验证码对话框
     showDialog(
@@ -115,10 +134,10 @@ class _LoginPageState extends State<LoginPage> {
     return true;
   }
 
-  void _handleLoginOrRegister() {
+  Future<void> _handleLoginOrRegister() async {
     if (_isClick) {
       // 登录逻辑
-      final user = UserService.login(_email, _pwd);
+      final user = await UserService.login(_email, _pwd);
       if (user != null) {
         Navigator.pushReplacement(
           context,
@@ -138,7 +157,7 @@ class _LoginPageState extends State<LoginPage> {
         return;
       }
 
-      UserService.register(User(
+      await UserService.register(User(
         email: _email,
         password: _pwd,
         verificationCode: _verificationCode,
@@ -162,6 +181,7 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   void dispose() {
+    _countdownTimer?.cancel();
     _codeController.dispose();
     super.dispose();
   }
@@ -330,13 +350,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       Center(
                         child: GestureDetector(
-                          onTap: () {
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => HomeTab()),
-                            );
-                          },
+                          onTap: _submit,
                           child: Container(
                             width: 230,
                             height: 55,

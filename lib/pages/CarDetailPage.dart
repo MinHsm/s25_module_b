@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -23,9 +24,9 @@ class _CarDetailPageState extends State<CarDetailPage> {
 
   @override
   void initState() {
-    loadArticleContent();
     super.initState();
     likeCount = widget.post['likes'];
+    loadArticleContent();
     comments = [
       {'author': '小王', 'comment': '写得不错，支持一下！'},
       {'author': '老李', 'comment': '我也刚提车，想了解更多经验。'},
@@ -34,14 +35,21 @@ class _CarDetailPageState extends State<CarDetailPage> {
   }
 
   Future<void> loadArticleContent() async {
+    if (widget.post.containsKey('content')) {
+      setState(() {
+        fullContent = widget.post['content'];
+      });
+      return;
+    }
+
     try {
       final String jsonStr =
-          await rootBundle.loadString('assets/data/article_content.json');
+      await rootBundle.loadString('assets/data/article_content.json');
       final Map<String, dynamic> data = json.decode(jsonStr);
       final List articles = data['articles'];
 
       final match = articles.firstWhere(
-        (item) => item['title'] == widget.post['title'],
+            (item) => item['title'] == widget.post['title'],
         orElse: () => {'content': '暂无正文内容'},
       );
 
@@ -69,7 +77,7 @@ class _CarDetailPageState extends State<CarDetailPage> {
     if (text.isNotEmpty) {
       setState(() {
         comments.insert(0, {
-          'author': '我', // 可替换为当前用户昵称
+          'author': '我',
           'comment': text,
         });
         _commentController.clear();
@@ -85,6 +93,24 @@ class _CarDetailPageState extends State<CarDetailPage> {
         '查看详情: https://分享测试暂无跳转链接${post['id']}';
 
     Share.share(shareText);
+  }
+
+  Widget _buildPostImage(String path) {
+    if (path.startsWith('/')) {
+      return Image.file(
+        File(path),
+        width: double.infinity,
+        height: 220,
+        fit: BoxFit.cover,
+      );
+    } else {
+      return Image.asset(
+        path,
+        width: double.infinity,
+        height: 220,
+        fit: BoxFit.cover,
+      );
+    }
   }
 
   @override
@@ -117,22 +143,14 @@ class _CarDetailPageState extends State<CarDetailPage> {
         children: [
           Expanded(
             child: SingleChildScrollView(
-              padding: EdgeInsets.only(bottom: 80), // 给底部按钮预留空间
+              padding: EdgeInsets.only(bottom: 80),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // 封面图
                   Hero(
                     tag: widget.heroTag,
-                    child: Image.asset(
-                      post['image'],
-                      width: double.infinity,
-                      height: 220,
-                      fit: BoxFit.cover,
-                    ),
+                    child: _buildPostImage(post['image']),
                   ),
-
-                  // 标题
                   Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Text(
@@ -143,8 +161,6 @@ class _CarDetailPageState extends State<CarDetailPage> {
                       ),
                     ),
                   ),
-
-                  // 作者 & 点赞数
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
                     child: Row(
@@ -163,10 +179,7 @@ class _CarDetailPageState extends State<CarDetailPage> {
                       ],
                     ),
                   ),
-
                   SizedBox(height: 16),
-
-                  // 正文内容
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
                     child: Text(
@@ -174,10 +187,7 @@ class _CarDetailPageState extends State<CarDetailPage> {
                       style: const TextStyle(fontSize: 16, height: 1.6),
                     ),
                   ),
-
                   SizedBox(height: 24),
-
-                  // 评论标题
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
                     child: Text('评论',
@@ -185,19 +195,15 @@ class _CarDetailPageState extends State<CarDetailPage> {
                             fontSize: 18, fontWeight: FontWeight.bold)),
                   ),
                   SizedBox(height: 8),
-
-                  // 评论列表
                   ...comments.map((c) => ListTile(
-                        leading: CircleAvatar(child: Icon(Icons.person)),
-                        title: Text(c['author']!),
-                        subtitle: Text(c['comment']!),
-                      )),
+                    leading: CircleAvatar(child: Icon(Icons.person)),
+                    title: Text(c['author']!),
+                    subtitle: Text(c['comment']!),
+                  )),
                 ],
               ),
             ),
           ),
-
-          // 底部栏
           Container(
             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             decoration: BoxDecoration(
@@ -206,14 +212,13 @@ class _CarDetailPageState extends State<CarDetailPage> {
             ),
             child: Row(
               children: [
-                // 评论输入框
                 Expanded(
                   child: TextField(
                     controller: _commentController,
                     decoration: InputDecoration(
                       hintText: '写评论...',
                       contentPadding:
-                          EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
                         borderSide: BorderSide(color: Colors.grey),
@@ -222,17 +227,15 @@ class _CarDetailPageState extends State<CarDetailPage> {
                   ),
                 ),
                 SizedBox(width: 12),
-
-                // 点赞按钮
                 IconButton(
                   icon: Icon(
-                    hasLiked ? Icons.thumb_up_alt : Icons.thumb_up_alt_outlined,
+                    hasLiked
+                        ? Icons.thumb_up_alt
+                        : Icons.thumb_up_alt_outlined,
                     color: hasLiked ? Colors.red : Colors.grey[600],
                   ),
                   onPressed: toggleLike,
                 ),
-
-                // 发送按钮
                 IconButton(
                   icon: Icon(Icons.send),
                   onPressed: sendComment,

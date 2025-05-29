@@ -19,25 +19,25 @@ class _HomePageState extends State<HomePage> {
 
   final List<CarData> carItems = [
     CarData(
-        name: 'BMW X4 Sports',
+        name: '宝马 X4 Sports',
         imgPath: 'assets/categories/car3.jpeg',
         description: '2019 · Comfort Class',
         price: 210,
         rating: 4.8),
     CarData(
-        name: 'BMW X4 Sports',
+        name: '宝马 X4 Sports',
         imgPath: 'assets/categories/car4.jpeg',
         description: '2019 · Comfort Class',
         price: 210,
         rating: 4.8),
     CarData(
-        name: 'BMW X4 Sports',
+        name: '宝马 X4 Sports',
         imgPath: 'assets/categories/car5.jpeg',
         description: '2019 · Comfort Class',
         price: 210,
         rating: 4.8),
     CarData(
-        name: 'BMW X4 Sports',
+        name: '宝马 X4 Sports',
         imgPath: 'assets/categories/car6.jpeg',
         description: '2019 · Comfort Class',
         price: 210,
@@ -392,7 +392,7 @@ class _HomePageState extends State<HomePage> {
                                         Padding(
                                           padding: EdgeInsets.only(left: 10),
                                           child: Text(
-                                            'BMW M5 G-Power',
+                                            '宝马 M5 G-Power',
                                             style: TextStyle(
                                                 fontSize: 13,
                                                 color: Colors.black),
@@ -401,7 +401,7 @@ class _HomePageState extends State<HomePage> {
                                         Padding(
                                           padding: EdgeInsets.only(left: 10),
                                           child: Text(
-                                            'Tel-Aviv,israel',
+                                            '特拉维夫，以色列',
                                             style: TextStyle(
                                                 fontSize: 13,
                                                 color: Colors.grey[500]),
@@ -500,7 +500,7 @@ class _HomePageState extends State<HomePage> {
                                         Padding(
                                           padding: EdgeInsets.only(left: 10),
                                           child: Text(
-                                            'Ford Mustang GT',
+                                            '福特野马 GT',
                                             style: TextStyle(
                                                 fontSize: 13,
                                                 color: Colors.black),
@@ -509,7 +509,7 @@ class _HomePageState extends State<HomePage> {
                                         Padding(
                                           padding: EdgeInsets.only(left: 10),
                                           child: Text(
-                                            'Tel-Aviv,israel',
+                                            '不知名的用户1',
                                             style: TextStyle(
                                                 fontSize: 13,
                                                 color: Colors.grey[500]),
@@ -620,7 +620,7 @@ class _HomePageState extends State<HomePage> {
                                         Padding(
                                           padding: EdgeInsets.only(left: 10),
                                           child: Text(
-                                            'Audi A7 2018',
+                                            '奥迪 A7 2018',
                                             style: TextStyle(
                                                 fontSize: 13,
                                                 color: Colors.black),
@@ -629,7 +629,7 @@ class _HomePageState extends State<HomePage> {
                                         Padding(
                                           padding: EdgeInsets.only(left: 10),
                                           child: Text(
-                                            'Warsaw,Poland',
+                                            '平凡的网友1',
                                             style: TextStyle(
                                                 fontSize: 13,
                                                 color: Colors.grey[500]),
@@ -728,7 +728,7 @@ class _HomePageState extends State<HomePage> {
                                         Padding(
                                           padding: EdgeInsets.only(left: 10),
                                           child: Text(
-                                            'Mercedes-Benz SLS',
+                                            '梅赛德斯-奔驰 SLS',
                                             style: TextStyle(
                                                 fontSize: 13,
                                                 color: Colors.black),
@@ -737,7 +737,7 @@ class _HomePageState extends State<HomePage> {
                                         Padding(
                                           padding: EdgeInsets.only(left: 10),
                                           child: Text(
-                                            'Haifa,Israel',
+                                            '不知名的用户2',
                                             style: TextStyle(
                                                 fontSize: 13,
                                                 color: Colors.grey[500]),

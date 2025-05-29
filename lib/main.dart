@@ -1,10 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:s25_module_b/HomeTab.dart';
+import 'package:s25_module_b/pages/HomePage.dart';
 import 'package:s25_module_b/pages/OnboardingPage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'pages/LoginPage.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final prefs = await SharedPreferences.getInstance();
+  final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+  runApp(MaterialApp(
+    debugShowCheckedModeBanner: false,
+    home: isLoggedIn ? HomeTab() : OnboardingPage(),
+  ));
 }
 
 class MyApp extends StatelessWidget {
@@ -12,23 +21,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: const MyHomePage(),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  @override
-  Widget build(BuildContext context) {
-    return OnboardingPage();
+    return MaterialApp(debugShowCheckedModeBanner: false, home: null);
   }
 }

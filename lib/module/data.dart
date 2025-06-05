@@ -87,4 +87,23 @@ class UserService {
     return prefs.getString('loggedInEmail');
   }
 
+  // 判断邮箱是否已注册
+  static Future<bool> isEmailRegistered(String email) async {
+    final users = await loadUsers();
+    return users.any((u) => u['email'] == email);
+  }
+
+// 更新密码
+  static Future<void> updatePassword(String email, String newPassword) async {
+    final prefs = await SharedPreferences.getInstance();
+    final users = await loadUsers();
+
+    for (var user in users) {
+      if (user['email'] == email) {
+        user['password'] = newPassword;
+      }
+    }
+
+    await prefs.setString(userKey, jsonEncode(users));
+  }
 }

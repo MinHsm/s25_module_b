@@ -2,7 +2,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:provider/provider.dart';
 
+import '../providers/CartProvider.dart';
 import 'ProductDetailPage.dart';
 
 class MallPage extends StatefulWidget {
@@ -216,12 +218,12 @@ class _MallPageState extends State<MallPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
-              flex: 4,
-              child: Hero(
-                tag: 'product_${product['id'] ?? UniqueKey()}', // 防止为 null
-                child: Image.asset(product['image'], fit: BoxFit.cover, width: double.infinity),
-              )
-            ),
+                flex: 4,
+                child: Hero(
+                  tag: 'product_${product['id'] ?? UniqueKey()}', // 防止为 null
+                  child: Image.asset(product['image'],
+                      fit: BoxFit.cover, width: double.infinity),
+                )),
             Padding(
               padding: const EdgeInsets.fromLTRB(8, 10, 8, 4),
               child: Text(product['name'],
@@ -263,6 +265,8 @@ class _MallPageState extends State<MallPage> {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
+                    Provider.of<CartProvider>(context, listen: false)
+                        .addToCart(product);
                     // 这里可以替换为加入购物车逻辑
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('已加入购物车：${product['name']}')),

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:s25_module_b/HomeTab.dart';
 import 'package:s25_module_b/pages/OnboardingPage.dart';
 import 'package:s25_module_b/providers/CartProvider.dart';
+import 'package:s25_module_b/providers/FavoriteProvider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
@@ -12,6 +13,7 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => FavoriteProvider()),
         ChangeNotifierProvider(create: (_) => CartProvider()),
       ],
       child: MyApp(initialPage: isLoggedIn ? HomeTab() : OnboardingPage()),

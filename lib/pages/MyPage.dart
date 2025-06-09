@@ -55,7 +55,6 @@ class MyPage extends StatelessWidget {
                 _buildListItem(context, Icons.star_border, '我的收藏'),
                 _buildListItem(context, Icons.edit_note_outlined, '我的发布'),
                 _buildListItem(context, Icons.shopping_cart_outlined, '购物车管理'),
-                _buildListItem(context, Icons.favorite_outline, '收藏管理'),
                 _buildListItem(context, Icons.settings, '设置'),
                 _buildListItem(context, Icons.info_outline, '关于我们'),
               ],
@@ -96,7 +95,7 @@ class MyPage extends StatelessWidget {
         } else if (title == '购物车管理') {
           Navigator.push(
               context, MaterialPageRoute(builder: (context) => CartPage()));
-        } else if (title == '收藏管理') {
+        } else if (title == '我的收藏') {
           Navigator.push(
               context, MaterialPageRoute(builder: (context) => FavoritePage()));
         } else {

@@ -4,6 +4,7 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:s25_module_b/component/SearchModal.dart';
 
 import '../module/data.dart';
+import 'CarPage.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -19,29 +20,41 @@ class _HomePageState extends State<HomePage> {
 
   final List<CarData> carItems = [
     CarData(
-        name: '宝马 X4 Sports',
+        name: '特斯拉 Model 3',
         imgPath: 'assets/categories/car3.jpeg',
-        description: '2019 · Comfort Class',
-        price: 210,
-        rating: 4.8),
+        description: '2023 · 电动豪华',
+        price: 350,
+        rating: 4.9),
     CarData(
-        name: '宝马 X4 Sports',
+        name: '奔驰 C200',
         imgPath: 'assets/categories/car4.jpeg',
-        description: '2019 · Comfort Class',
-        price: 210,
-        rating: 4.8),
+        description: '2022 · 豪华轿车',
+        price: 320,
+        rating: 4.7),
     CarData(
-        name: '宝马 X4 Sports',
+        name: '奥迪 Q5',
         imgPath: 'assets/categories/car5.jpeg',
-        description: '2019 · Comfort Class',
-        price: 210,
-        rating: 4.8),
+        description: '2021 · 高端SUV',
+        price: 280,
+        rating: 4.6),
     CarData(
-        name: '宝马 X4 Sports',
+        name: '丰田 凯美瑞',
         imgPath: 'assets/categories/car6.jpeg',
-        description: '2019 · Comfort Class',
-        price: 210,
-        rating: 4.8)
+        description: '2022 · 商务轿车',
+        price: 190,
+        rating: 4.5),
+    CarData(
+        name: '保时捷 911',
+        imgPath: 'assets/categories/car7.jpeg',
+        description: '2023 · 经典跑车',
+        price: 550,
+        rating: 4.9),
+    CarData(
+        name: '本田 思域',
+        imgPath: 'assets/categories/car8.jpeg',
+        description: '2021 · 紧凑型轿车',
+        price: 160,
+        rating: 4.4)
   ];
 
   Future<void> scanQRCode(BuildContext context) async {
@@ -180,7 +193,13 @@ class _HomePageState extends State<HomePage> {
                     final car = carItems[index];
                     return GestureDetector(
                       onTap: () {
-                        // 可选跳转逻辑
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                CarPage(car: car), // 直接传递当前 car 对象
+                          ),
+                        );
                       },
                       child: Padding(
                         padding: EdgeInsets.symmetric(horizontal: 6),

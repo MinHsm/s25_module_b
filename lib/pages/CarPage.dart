@@ -11,566 +11,476 @@ class CarPage extends StatefulWidget {
 }
 
 class _CarPageState extends State<CarPage> {
-  bool _isClick = true;
+  // 状态变量
+  bool _isAgreementAccepted = true;
+  DateTimeRange? _selectedDateRange;
+  final _imageCache = <String, ImageProvider>{};
+
+  // 计算属性
+  double get _calculatedPrice {
+    final days = _selectedDateRange?.duration.inDays ?? 1;
+    return widget.car.price * days;
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _imageCache[widget.car.imgPath] ??= AssetImage(widget.car.imgPath);
+    precacheImage(_imageCache[widget.car.imgPath]!, context);
+  }
+
+  void _handlePayment() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text("确认支付"),
+        content: Text("确定支付 ¥${_calculatedPrice.toStringAsFixed(0)} 吗？"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text("取消"),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text("支付成功！")),
+              );
+            },
+            child: Text("确认"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _selectDateRange() async {
+    final picked = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(Duration(days: 365)),
+      currentDate: DateTime.now(),
+      saveText: "确认",
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.light(
+              primary: Colors.blue,
+              onPrimary: Colors.white,
+              surface: Colors.white,
+              onSurface: Colors.black,
+            ),
+            dialogBackgroundColor: Colors.white,
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (picked != null) {
+      setState(() => _selectedDateRange = picked);
+    }
+  }
+
+  void _showFullScreenImage(BuildContext context) {
+    Navigator.push(
+      context,
+      PageRouteBuilder(
+        opaque: false,
+        pageBuilder: (_, __, ___) => Scaffold(
+          backgroundColor: Colors.black.withOpacity(0.95),
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            leading: IconButton(
+              icon: Icon(Icons.arrow_back, color: Colors.white),
+              onPressed: () => Navigator.pop(context),
+            ),
+          ),
+          body: Center(
+            child: Hero(
+              tag: 'car-${widget.car.name}-hero',
+              child: InteractiveViewer(
+                panEnabled: true,
+                minScale: 0.5,
+                maxScale: 3.0,
+                child: Image(image: _imageCache[widget.car.imgPath]!),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
-    final isSmallScreen = screenWidth < 360; // 小屏幕设备判断
+    final screenSize = MediaQuery.of(context).size;
+    final isSmallScreen = screenSize.width < 360;
+    final theme = Theme.of(context);
 
     return Scaffold(
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          return SingleChildScrollView(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(minHeight: constraints.maxHeight),
-              child: IntrinsicHeight(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // 顶部导航栏
-                    Container(
-                      height: 80,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        border: Border(
-                          bottom: BorderSide(
-                            color: const Color(0xBBDADADA),
-                            width: 2,
-                          ),
+      body: Column(
+        children: [
+          // 顶部导航栏
+          _buildAppBar(isSmallScreen),
+
+          // 主要内容
+          Expanded(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Column(
+                children: [
+                  _buildCarInfoCard(isSmallScreen),
+                  SizedBox(height: 16),
+                  _buildAddressCard(isSmallScreen),
+                  SizedBox(height: 16),
+                  _buildDatePickerCard(isSmallScreen),
+                  SizedBox(height: 24),
+                ],
+              ),
+            ),
+          ),
+
+          // 底部支付栏
+          _buildPaymentBar(isSmallScreen),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAppBar(bool isSmallScreen) {
+    return Container(
+      height: 80,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border(
+          bottom: BorderSide(color: Color(0xBBDADADA), width: 1),
+        ),
+      ),
+      padding: EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            '车辆详情',
+            style: TextStyle(
+              fontSize: isSmallScreen ? 22 : 26,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          CircleAvatar(
+            radius: 25,
+            backgroundImage: AssetImage('assets/user_avatar/user_img.jpg'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCarInfoCard(bool isSmallScreen) {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Flexible(
+                  child: Text(
+                    widget.car.name,
+                    style: TextStyle(
+                      fontSize: isSmallScreen ? 18 : 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.yellow[50],
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.star, color: Colors.amber, size: 18),
+                      SizedBox(width: 4),
+                      Text(
+                        widget.car.rating.toString(),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.amber[800],
                         ),
                       ),
-                      padding: EdgeInsets.symmetric(
-                        horizontal: screenWidth * 0.03,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            '订购',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: isSmallScreen ? 22 : 26,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Container(
-                            width: 50,
-                            height: 50,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(100),
-                              image: DecorationImage(
-                                  image: AssetImage(
-                                      'assets/user_avatar/user_img.jpg'),
-                                  fit: BoxFit.cover),
-                            ),
-                          ),
-                        ],
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 8),
+            Text(
+              widget.car.description,
+              style: TextStyle(color: Colors.grey[600]),
+            ),
+            SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildFeatureItem('assets/icon/seat_icon.png', '5座'),
+                _buildFeatureItem('assets/icon/gate_icon.png', '4门'),
+                _buildFeatureItem('assets/icon/bag_icon.png', '3箱'),
+              ],
+            ),
+            SizedBox(height: 16),
+            Hero(
+              tag: 'car-${widget.car.name}-hero',
+              child: Material(
+                type: MaterialType.transparency,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(8),
+                  onTap: () => _showFullScreenImage(context),
+                  child: AspectRatio(
+                    aspectRatio: 16 / 9,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image(
+                        image: _imageCache[widget.car.imgPath]!,
+                        fit: BoxFit.cover,
+                        loadingBuilder: (ctx, child, progress) {
+                          return progress == null
+                              ? child
+                              : Container(color: Colors.grey[200]);
+                        },
                       ),
                     ),
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(height: 16),
+            RichText(
+              text: TextSpan(
+                children: [
+                  TextSpan(
+                    text: "¥${widget.car.price.toStringAsFixed(0)}",
+                    style: TextStyle(
+                      fontSize: isSmallScreen ? 26 : 30,
+                      color: Colors.blue,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  TextSpan(
+                    text: '/天',
+                    style: TextStyle(
+                      fontSize: isSmallScreen ? 14 : 16,
+                      color: Colors.blue[400],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
-                    // 主要内容
-                    Expanded(
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: screenWidth * 0.03,
-                          vertical: screenHeight * 0.02,
+  Widget _buildFeatureItem(String iconPath, String text) {
+    return Column(
+      children: [
+        Image.asset(iconPath, width: 24, height: 24),
+        SizedBox(height: 4),
+        Text(text, style: TextStyle(fontSize: 12)),
+      ],
+    );
+  }
+
+  Widget _buildAddressCard(bool isSmallScreen) {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Icon(Icons.location_on, color: Colors.blue, size: 28),
+            SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('1560 Broadway', style: TextStyle(fontSize: 14)),
+                  Text('Unit 1001', style: TextStyle(fontSize: 14)),
+                  Text('New York, NY 10036', style: TextStyle(fontSize: 14)),
+                  Text('United States', style: TextStyle(fontSize: 14)),
+                ],
+              ),
+            ),
+            Container(
+              width: 100,
+              height: 80,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                image: DecorationImage(
+                  image: AssetImage('assets/map/ic_map.jpg'),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDatePickerCard(bool isSmallScreen) {
+    final startDate = _selectedDateRange?.start ?? DateTime.now();
+    final endDate =
+        _selectedDateRange?.end ?? DateTime.now().add(Duration(days: 3));
+
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: _selectDateRange,
+        child: Padding(
+          padding: EdgeInsets.all(16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.calendar_today, color: Colors.blue, size: 24),
+                  SizedBox(width: 12),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "${startDate.year}/${startDate.month}/${startDate.day}",
+                        style: TextStyle(
+                          color: Colors.blue,
+                          fontWeight: FontWeight.bold,
                         ),
-                        child: Column(
-                          children: [
-                            // 车辆信息卡片
-                            Card(
-                              color: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Padding(
-                                padding: EdgeInsets.all(screenWidth * 0.04),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Flexible(
-                                          child: Text(
-                                            widget.car.name,
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: isSmallScreen ? 18 : 20,
-                                            ),
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
-                                        Container(
-                                          width: screenWidth * 0.25,
-                                          height: 35,
-                                          decoration: BoxDecoration(
-                                            color: Colors.yellow[50],
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                          ),
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceEvenly,
-                                            children: [
-                                              Icon(
-                                                Icons.star,
-                                                color: Colors.yellow[500],
-                                                size: isSmallScreen ? 16 : 20,
-                                              ),
-                                              Text(
-                                                widget.car.rating.toString(),
-                                                style: TextStyle(
-                                                  fontSize:
-                                                      isSmallScreen ? 18 : 22,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.yellow[500],
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(height: screenHeight * 0.01),
-                                    Text(
-                                      widget.car.description,
-                                      style: TextStyle(
-                                        color: Colors.grey[400],
-                                        fontSize: isSmallScreen ? 16 : 18,
-                                      ),
-                                    ),
-                                    SizedBox(height: screenHeight * 0.01),
-                                    Container(
-                                      height: 20,
-                                      width: screenWidth * 0.4,
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceEvenly,
-                                        children: [
-                                          _buildFeatureItem(
-                                            'assets/icon/seat_icon.png',
-                                            '5',
-                                            isSmallScreen,
-                                          ),
-                                          _buildFeatureItem(
-                                            'assets/icon/gate_icon.png',
-                                            '4',
-                                            isSmallScreen,
-                                          ),
-                                          _buildFeatureItem(
-                                            'assets/icon/bag_icon.png',
-                                            '3',
-                                            isSmallScreen,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    SizedBox(height: screenHeight * 0.02),
-                                    Hero(
-                                      tag: 'car-image-${widget.car.imgPath}',
-                                      // 确保每个图片有唯一tag
-                                      child: GestureDetector(
-                                        onTap: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) => Scaffold(
-                                                appBar: AppBar(),
-                                                body: Center(
-                                                  child: Hero(
-                                                    tag:
-                                                        'car-image-${widget.car.imgPath}',
-                                                    child: Image.asset(
-                                                        widget.car.imgPath),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                        child: AspectRatio(
-                                          aspectRatio: 16 / 9,
-                                          child: Image.asset(
-                                            widget.car.imgPath,
-                                            fit: BoxFit.cover,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    SizedBox(height: screenHeight * 0.02),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        RichText(
-                                          text: TextSpan(
-                                            children: [
-                                              TextSpan(
-                                                text:
-                                                    "\$${widget.car.price.toStringAsFixed(0)}",
-                                                style: TextStyle(
-                                                  fontSize:
-                                                      isSmallScreen ? 26 : 30,
-                                                  color: Colors.blue,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                              TextSpan(
-                                                text: ' per day',
-                                                style: TextStyle(
-                                                  fontSize:
-                                                      isSmallScreen ? 10 : 12,
-                                                  color: Colors.blue,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-
-                            SizedBox(height: screenHeight * 0.02),
-
-                            // 地址卡片
-                            Card(
-                              color: Colors.white,
-                              child: Container(
-                                padding: EdgeInsets.all(screenWidth * 0.03),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Flexible(
-                                      child: Row(
-                                        children: [
-                                          Icon(
-                                            Icons.location_on_sharp,
-                                            color: Colors.grey[400],
-                                            size: isSmallScreen ? 24 : 30,
-                                          ),
-                                          SizedBox(width: screenWidth * 0.02),
-                                          Flexible(
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  '1560 Broadway',
-                                                  style: TextStyle(
-                                                    fontSize:
-                                                        isSmallScreen ? 12 : 14,
-                                                    color: Colors.grey[500],
-                                                  ),
-                                                ),
-                                                Text(
-                                                  'Unit 1001',
-                                                  style: TextStyle(
-                                                    fontSize:
-                                                        isSmallScreen ? 12 : 14,
-                                                    color: Colors.grey[500],
-                                                  ),
-                                                ),
-                                                Text(
-                                                  'New York,NY 10036',
-                                                  style: TextStyle(
-                                                    fontSize:
-                                                        isSmallScreen ? 12 : 14,
-                                                    color: Colors.grey[500],
-                                                  ),
-                                                ),
-                                                Text(
-                                                  'United States',
-                                                  style: TextStyle(
-                                                    fontSize:
-                                                        isSmallScreen ? 12 : 14,
-                                                    color: Colors.grey[500],
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    Container(
-                                      width: screenWidth * 0.3,
-                                      height: screenHeight * 0.1,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(10),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.grey.withOpacity(0.5),
-                                            spreadRadius: 1,
-                                            blurRadius: 2,
-                                            offset: Offset(1, 2),
-                                          ),
-                                        ],
-                                      ),
-                                      child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(10),
-                                        child: Image.asset(
-                                          'assets/map/ic_map.jpg',
-                                          fit: BoxFit.cover,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-
-                            SizedBox(height: screenHeight * 0.02),
-
-                            // 日期选择卡片
-                            Card(
-                              color: Colors.white,
-                              child: Padding(
-                                padding: EdgeInsets.all(screenWidth * 0.03),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Icon(
-                                          Icons.access_time_outlined,
-                                          color: Colors.grey,
-                                          size: isSmallScreen ? 24 : 30,
-                                        ),
-                                        SizedBox(width: screenWidth * 0.02),
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              '11/12/2020',
-                                              style: TextStyle(
-                                                color: Colors.blue,
-                                                fontSize:
-                                                    isSmallScreen ? 14 : 16,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                            Text(
-                                              '14/12/2020',
-                                              style: TextStyle(
-                                                color: Colors.blue[700],
-                                                fontSize:
-                                                    isSmallScreen ? 14 : 16,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                    Container(
-                                      width: screenWidth * 0.4,
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceEvenly,
-                                        children: [
-                                          _buildCounterButton(
-                                            Icons.remove,
-                                            () {},
-                                            isSmallScreen,
-                                          ),
-                                          Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Text(
-                                                '3',
-                                                style: TextStyle(
-                                                  fontSize:
-                                                      isSmallScreen ? 16 : 18,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.blue,
-                                                ),
-                                              ),
-                                              Text(
-                                                'Days',
-                                                style: TextStyle(
-                                                  fontSize:
-                                                      isSmallScreen ? 12 : 14,
-                                                  color: Colors.grey[500],
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          _buildCounterButton(
-                                            Icons.add,
-                                            () {},
-                                            isSmallScreen,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-
-                            SizedBox(height: screenHeight * 0.02),
-
-                            // 底部支付栏
-                            Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: screenWidth * 0.03,
-                              ),
-                              child: Row(
-                                children: [
-                                  Text(
-                                    '\$630',
-                                    style: TextStyle(
-                                      color: Colors.blue,
-                                      fontSize: isSmallScreen ? 26 : 30,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Row(
-                                      children: [
-                                        Checkbox(
-                                          activeColor: Colors.blue,
-                                          checkColor: Colors.white,
-                                          value: _isClick,
-                                          onChanged: (bool? value) {
-                                            setState(() {
-                                              _isClick = value!;
-                                            });
-                                          },
-                                          visualDensity: VisualDensity.compact,
-                                          materialTapTargetSize:
-                                              MaterialTapTargetSize.shrinkWrap,
-                                        ),
-                                        Flexible(
-                                          child: RichText(
-                                            overflow: TextOverflow.ellipsis,
-                                            text: TextSpan(
-                                              children: [
-                                                TextSpan(
-                                                  text: 'Accepted ',
-                                                  style: TextStyle(
-                                                    fontSize:
-                                                        isSmallScreen ? 12 : 14,
-                                                    color: Colors.grey,
-                                                  ),
-                                                ),
-                                                TextSpan(
-                                                  text: 'User Agreement',
-                                                  style: TextStyle(
-                                                    fontSize:
-                                                        isSmallScreen ? 12 : 14,
-                                                    color: Colors.blue,
-                                                    decoration: TextDecoration
-                                                        .underline,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Container(
-                                    width: screenWidth * 0.28,
-                                    height: 40,
-                                    child: ElevatedButton(
-                                      style: ButtonStyle(
-                                        backgroundColor:
-                                            MaterialStateProperty.all(
-                                                Colors.blue),
-                                        shape: MaterialStateProperty.all(
-                                          RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                          ),
-                                        ),
-                                      ),
-                                      onPressed: () {},
-                                      child: Text(
-                                        'Pay Now',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: isSmallScreen ? 10 : 12,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
+                      ),
+                      Text(
+                        "${endDate.year}/${endDate.month}/${endDate.day}",
+                        style: TextStyle(
+                          color: Colors.blue[700],
+                          fontWeight: FontWeight.bold,
                         ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.blue[50],
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                child: Column(
+                  children: [
+                    Text(
+                      "${_selectedDateRange?.duration.inDays ?? 3}",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blue,
+                      ),
+                    ),
+                    Text(
+                      "天",
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.blue[400],
                       ),
                     ),
                   ],
                 ),
               ),
-            ),
-          );
-        },
+            ],
+          ),
+        ),
       ),
     );
   }
 
-  Widget _buildFeatureItem(String iconPath, String text, bool isSmallScreen) {
-    return Row(
-      children: [
-        Image.asset(
-          iconPath,
-          width: isSmallScreen ? 16 : 20,
-          height: isSmallScreen ? 16 : 20,
-        ),
-        SizedBox(width: 4),
-        Text(
-          text,
-          style: TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
-            fontSize: isSmallScreen ? 14 : 16,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildCounterButton(
-      IconData icon, VoidCallback onPressed, bool isSmallScreen) {
+  Widget _buildPaymentBar(bool isSmallScreen) {
     return Container(
-      width: isSmallScreen ? 36 : 45,
-      height: isSmallScreen ? 36 : 45,
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: [
-          BoxShadow(
-            color: Color(0xBBE0E0E0),
-            offset: Offset(3, 3),
-            blurRadius: 5,
-            spreadRadius: 1,
+        border: Border(top: BorderSide(color: Colors.grey[200]!)),
+      ),
+      child: Row(
+        children: [
+          Text(
+            "¥${_calculatedPrice.toStringAsFixed(0)}",
+            style: TextStyle(
+              fontSize: isSmallScreen ? 24 : 28,
+              fontWeight: FontWeight.bold,
+              color: Colors.blue,
+            ),
+          ),
+          SizedBox(width: 8),
+          Expanded(
+            child: Row(
+              children: [
+                Checkbox(
+                  value: _isAgreementAccepted,
+                  onChanged: (v) => setState(() => _isAgreementAccepted = v!),
+                  activeColor: Colors.blue,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+                Expanded(
+                  child: RichText(
+                    overflow: TextOverflow.ellipsis,
+                    text: TextSpan(
+                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                      children: [
+                        TextSpan(text: "同意 "),
+                        TextSpan(
+                          text: "用户协议",
+                          style: TextStyle(
+                            color: Colors.blue,
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(width: 8),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: _isAgreementAccepted ? Colors.blue : Colors.grey,
+              shape: StadiumBorder(),
+              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            ),
+            onPressed: _isAgreementAccepted ? _handlePayment : null,
+            child: Text(
+              '立即支付',
+              style: TextStyle(
+                fontSize: isSmallScreen ? 14 : 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
           ),
         ],
-      ),
-      child: IconButton(
-        icon: Icon(
-          icon,
-          size: isSmallScreen ? 20 : 24,
-          color: Colors.blue,
-        ),
-        onPressed: onPressed,
-        padding: EdgeInsets.zero,
       ),
     );
   }

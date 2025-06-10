@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -17,6 +20,13 @@ class ProductDetailPage extends StatefulWidget {
 
 class _ProductDetailPageState extends State<ProductDetailPage> {
   bool isFavorited = false;
+
+  Future<void> _shareCard() async {
+    final directory = await getTemporaryDirectory();
+    final imagePath = await File('${directory.path}/share.png').create();
+    await Share.shareXFiles([XFile(imagePath.path)],
+        text: '推荐好物：${widget.product['name']}');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,17 +49,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
         foregroundColor: Colors.black,
         elevation: 0.5,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.share),
-            onPressed: () {
-              final product = widget.product;
-              final String name = product['name'];
-              final String price = product['price'].toString();
-              final String shareContent = '快来看看这个商品：$name，价格：￥$price';
-
-              Share.share(shareContent);
-            },
-          ),
+          IconButton(icon: const Icon(Icons.share), onPressed: _shareCard),
         ],
       ),
       backgroundColor: const Color(0xFFF5F6FA),

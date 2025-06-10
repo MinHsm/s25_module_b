@@ -275,7 +275,7 @@ class _MallPageState extends State<MallPage> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: themeColor,
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20)),
+                        borderRadius: BorderRadius.circular(10)),
                     padding: const EdgeInsets.symmetric(vertical: 10),
                   ),
                   child: const Text('加入购物车',

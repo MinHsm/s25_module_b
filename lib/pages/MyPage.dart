@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:s25_module_b/module/data.dart';
 import 'package:s25_module_b/pages/AboutPage.dart';
+import 'package:s25_module_b/pages/MyPostsPage.dart';
 
 import 'CartPage.dart';
 import 'FavoritePage.dart';
@@ -98,6 +99,9 @@ class MyPage extends StatelessWidget {
         } else if (title == '我的收藏') {
           Navigator.push(
               context, MaterialPageRoute(builder: (context) => FavoritePage()));
+        } else if (title == '我的发布') {
+          Navigator.push(
+              context, MaterialPageRoute(builder: (context) => MyPostsPage()));
         } else {
           ScaffoldMessenger.of(context)
               .showSnackBar(SnackBar(content: Text("点击了：$title")));

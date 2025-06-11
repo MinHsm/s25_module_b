@@ -8,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'CarDetailPage.dart';
 import 'CreatePostPage.dart';
+import 'MyPostsPage.dart';
 
 class CommunityPage extends StatefulWidget {
   const CommunityPage({super.key});
@@ -26,42 +27,61 @@ class _CommunityPageState extends State<CommunityPage>
 
   Future<void> loadPostData() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final savedData = prefs.getString('communityData');
+      final dir = await getApplicationDocumentsDirectory();
+      final file = File('${dir.path}/community_data.json');
 
-      if (savedData != null) {
-        final Map<String, dynamic> data = json.decode(savedData);
+      if (await file.exists()) {
+        final content = await file.readAsString();
+        final data = json.decode(content);
+
+        final latest = List<Map<String, dynamic>>.from(data['latestPosts'] ?? []);
+
+        // 推荐包含所有类型的文章（包括用户发的）
+        final userPosts = latest.where((p) => p['isUserPost'] == true).toList();
+        final otherPosts = latest.where((p) => p['isUserPost'] != true).toList();
+
+        final newRecommendPosts = [
+          ...userPosts.take(2),      // 优先展示前2条用户发的
+          ...otherPosts.take(3),     // 再展示3条其他文章
+        ];
+
         setState(() {
           hotPosts = List<Map<String, dynamic>>.from(data['hotPosts'] ?? []);
-          recommendPosts =
-          List<Map<String, dynamic>>.from(data['recommendPosts'] ?? []);
-          latestPosts =
-          List<Map<String, dynamic>>.from(data['latestPosts'] ?? []);
+          latestPosts = latest;
+          recommendPosts = newRecommendPosts;
         });
         return;
       }
     } catch (e) {
-      print('加载本地数据失败: $e');
+      print('加载本地 JSON 数据失败: $e');
     }
 
-    final String jsonStr =
-    await rootBundle.loadString('assets/data/community_list.json');
+    // fallback 数据加载
+    final String jsonStr = await rootBundle.loadString('assets/data/community_list.json');
     final Map<String, dynamic> data = json.decode(jsonStr);
+
+    final latest = List<Map<String, dynamic>>.from(data['latestPosts']);
+    final newRecommendPosts = latest.take(5).toList();
 
     setState(() {
       hotPosts = List<Map<String, dynamic>>.from(data['hotPosts']);
-      recommendPosts = List<Map<String, dynamic>>.from(data['recommendPosts']);
-      latestPosts = List<Map<String, dynamic>>.from(data['latestPosts']);
+      latestPosts = latest;
+      recommendPosts = newRecommendPosts;
     });
   }
 
   void addNewPost(Map<String, dynamic> newPost) {
+    final updatedPost = {
+      ...newPost,
+      'isUserPost': true,
+    };
+
     final updatedLatestPosts = List<Map<String, dynamic>>.from(latestPosts);
-    updatedLatestPosts.insert(0, newPost);
+    updatedLatestPosts.insert(0, updatedPost);
 
     setState(() {
       latestPosts = updatedLatestPosts;
-      recommendPosts = [newPost, ...recommendPosts.take(4)];
+      recommendPosts = [updatedPost, ...recommendPosts.take(4)];
     });
 
     _saveToJson();
@@ -195,6 +215,20 @@ class _CommunityPageState extends State<CommunityPage>
             Tab(text: '最新'),
           ],
         ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.person),
+            onPressed: () async {
+              // 跳转到我的发布页面
+              await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => MyPostsPage()),
+              );
+              // 返回后刷新数据
+              await loadPostData();
+            },
+          )
+        ],
       ),
       body: RefreshIndicator(
           child: TabBarView(

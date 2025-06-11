@@ -6,6 +6,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../providers/CartProvider.dart';
 import '../providers/FavoriteProvider.dart';
 import 'FullscreenImageGallery.dart';
 
@@ -154,6 +155,9 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             Expanded(
               child: ElevatedButton.icon(
                 onPressed: () {
+                  Provider.of<CartProvider>(context, listen: false)
+                      .addToCart(product);
+
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('已加入购物车')),
                   );

@@ -2,6 +2,9 @@ import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
+// article_store.dart
+List<Map<String, dynamic>> publishedArticles = [];
+
 class CarData {
   final String name;
   final String imgPath;

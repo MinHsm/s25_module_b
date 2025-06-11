@@ -219,7 +219,7 @@ class _LoginPageState extends State<LoginPage> {
           )),
           Center(
             child: Container(
-              width: 350,
+              width: 340,
               height: _isClick ? 450 : 500,
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
